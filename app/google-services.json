@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "350243881436",
+    "firebase_url": "https://fbmapa-540a4.firebaseio.com",
+    "project_id": "fbmapa-540a4",
+    "storage_bucket": "fbmapa-540a4.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:350243881436:android:e7ba17bf6b4d0286",
+        "android_client_info": {
+          "package_name": "hr.s1.rma.fbmapa"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "350243881436-63trkdifpt7qab79u9e7ocs9cba5g4oj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "hr.s1.rma.fbmapa",
+            "certificate_hash": "9c0a2aacdba5347d05ac9236551ccd6b6b5411d9"
+          }
+        },
+        {
+          "client_id": "350243881436-hrhb6vd6j54f0i1e7q5e2llt13ine4u6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDTfFww7RsYjXFwAnDjvMZIyJYRbX7RuuM"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "350243881436-hrhb6vd6j54f0i1e7q5e2llt13ine4u6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
