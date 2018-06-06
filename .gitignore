@@ -11,6 +11,12 @@
 
 #ja mislim
 gradle.properties
+.idea/assetWizardSettings.xml
+.idea/caches/build_file_checksums.ser
+
+
+## Java class files
+*.class
 
 ##built application files
 #*.apk
@@ -18,8 +24,7 @@ gradle.properties
 ## files for the dex VM
 #*.dex
 
-## Java class files
-#*.class
+
 
 ## generated files
 #bin/
