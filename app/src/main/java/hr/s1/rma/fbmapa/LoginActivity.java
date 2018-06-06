@@ -9,8 +9,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -40,18 +43,27 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         mAuth = FirebaseAuth.getInstance();
-        LoginEmail = (TextInputEditText ) findViewById(R.id.log_email);
-        LoginPassword = (TextInputEditText )findViewById(R.id.log_password);
+        LoginEmail = (TextInputEditText) findViewById(R.id.log_email);
+        LoginPassword = (TextInputEditText)findViewById(R.id.log_password);
         loginButton = findViewById(R.id.log_button);
         LoginProgress = new ProgressDialog(this);
         mUserDatabase = FirebaseDatabase.getInstance().getReference().child("Users");
-
+        //da enter postane submit!
+        LoginPassword.setOnEditorActionListener(new TextInputEditText.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    loginButton.performClick();
+                    return true;
+                }
+                return false;
+            }
+        });
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String email = LoginEmail.getText().toString();
                 String password = LoginPassword.getText().toString();
-
                 if (!TextUtils.isEmpty(email) || !TextUtils.isEmpty(password)){
                     LoginProgress.setTitle("Logging in");
                     LoginProgress.setMessage("Please wait while we check your credentials");
