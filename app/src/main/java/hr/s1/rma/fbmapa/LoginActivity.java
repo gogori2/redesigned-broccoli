@@ -2,11 +2,10 @@ package hr.s1.rma.fbmapa;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -17,19 +16,14 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
 
 public class LoginActivity extends AppCompatActivity {
 
     private TextInputEditText  LoginEmail;
     private TextInputEditText  LoginPassword;
-    private Button loginButton;
     private ProgressDialog LoginProgress;
     private FirebaseAuth mAuth;
     private DatabaseReference mUserDatabase;
@@ -42,7 +36,7 @@ public class LoginActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         LoginEmail = (TextInputEditText ) findViewById(R.id.log_email);
         LoginPassword = (TextInputEditText )findViewById(R.id.log_password);
-        loginButton = findViewById(R.id.log_button);
+        Button loginButton = findViewById(R.id.log_button);
         LoginProgress = new ProgressDialog(this);
         mUserDatabase = FirebaseDatabase.getInstance().getReference().child("Users");
 
@@ -52,7 +46,7 @@ public class LoginActivity extends AppCompatActivity {
                 String email = LoginEmail.getText().toString();
                 String password = LoginPassword.getText().toString();
 
-                if (!TextUtils.isEmpty(email) || !TextUtils.isEmpty(password)){
+                if (!TextUtils.isEmpty(email) && !TextUtils.isEmpty(password)){
                     LoginProgress.setTitle("Logging in");
                     LoginProgress.setMessage("Please wait while we check your credentials");
                     LoginProgress.setCanceledOnTouchOutside(false);

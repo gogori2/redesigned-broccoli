@@ -2,12 +2,10 @@ package hr.s1.rma.fbmapa;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputEditText;
-import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -30,9 +28,8 @@ public class RegisterActivity extends AppCompatActivity {
     private TextInputEditText  mUsername;
     private TextInputEditText  mEmail;
     private TextInputEditText  mPassword;
-    private Button mCreateAcc;
     private FirebaseAuth mAuth;
-    private FirebaseAuth.AuthStateListener mAuthListener;
+    private FirebaseAuth.AuthStateListener mAuthListener; //ne koristi se? zasto
     private DatabaseReference mdatabase;
     private static final String TAG = "*";
 
@@ -44,10 +41,10 @@ public class RegisterActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
 
-        mUsername = (TextInputEditText ) findViewById(R.id.reg_username);
-        mEmail = (TextInputEditText )findViewById(R.id.reg_email);
-        mPassword = (TextInputEditText )findViewById(R.id.reg_password);
-        mCreateAcc = findViewById(R.id.reg_create_button);
+        mUsername = findViewById(R.id.reg_username);
+        mEmail = findViewById(R.id.reg_email);
+        mPassword = findViewById(R.id.reg_password);
+        Button mCreateAcc = findViewById(R.id.reg_create_button);
 
         mRegProgress = new ProgressDialog(this);
 
@@ -58,18 +55,26 @@ public class RegisterActivity extends AppCompatActivity {
                 String email = mEmail.getText().toString();
                 String password = mPassword.getText().toString();
 
-                if (!TextUtils.isEmpty(username) || !TextUtils.isEmpty(email) || !TextUtils.isEmpty(password) ){
+                if (!TextUtils.isEmpty(username) && !TextUtils.isEmpty(email) && !TextUtils.isEmpty(password) && passwordFormatCorrect(password)){ // && umjesto ||
                     register_user(username, email, password);
                     mRegProgress.setTitle("Registering user");
                     mRegProgress.setMessage("Please wait while we create your account !");
                     mRegProgress.setCanceledOnTouchOutside(false);
                     mRegProgress.show();
+                }else if (!passwordFormatCorrect(password)){
+                    Toast.makeText(RegisterActivity.this, "Check your form and make sure password is longer than 5 characters!", Toast.LENGTH_SHORT).show();
                 }else{
-                    Toast.makeText(RegisterActivity.this, "Something is wrong, check your form", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(RegisterActivity.this, "Something is missing, check your form", Toast.LENGTH_SHORT).show();
+                    //ne pokaze se, vrati se nazad na "Welcome Activity"!
+                    //ovdje staviti provjeru je li lozinka dulja od 6 znakova
                 }
 
             }
         });
+    }
+
+    private Boolean passwordFormatCorrect(String password){
+        return password.length() > 5;
     }
 
     private void register_user(final String username, String email, String password) {
@@ -79,7 +84,8 @@ public class RegisterActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             mRegProgress.dismiss();
-                            FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+                            FirebaseUser currentUser = mAuth.getCurrentUser();
+                            assert currentUser != null;
                             String uid = currentUser.getUid();
                             //spremi login u sharedpref da moze iz logina procitati
                             /*SharedPreferences pref = getApplicationContext().getSharedPreferences("MyPref", MODE_PRIVATE);
@@ -111,7 +117,7 @@ public class RegisterActivity extends AppCompatActivity {
                             mRegProgress.hide();
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "createUserWithEmail:failure", task.getException());
-                            Toast.makeText(RegisterActivity.this, "Authentication failed.",
+                            Toast.makeText(RegisterActivity.this, "Authentication failed. User already exists or password is shorter than 6 characters",
                                     Toast.LENGTH_SHORT).show();
                             //updateUI(null);
                         }

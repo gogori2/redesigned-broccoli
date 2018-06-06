@@ -1,28 +1,20 @@
 package hr.s1.rma.fbmapa;
 
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.nfc.Tag;
 import android.os.AsyncTask;
-import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
-import android.support.v7.app.AlertDialog;
-import android.util.Log;
+import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -42,7 +34,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -51,15 +42,15 @@ import com.google.firebase.database.ValueEventListener;
 
 import org.json.JSONObject;
 
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
     // Write a message to the database
@@ -77,11 +68,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     static LatLng mojStart = new LatLng(45.340692, 14.407214);
     static LatLng mojEnd = new LatLng(45.340737, 14.408180);
     static LatLng chosenOne = new LatLng(0, 0);
-    //public int alex = 0;
-    public int j = 0, i = 0;
+    /*
+   public int alex = 0;
+   public int j = 0, i = 0;
+   */
     Button refresh, prijavi, obrisi;
     Marker mMarker;
-    TextView tekst;
+   // TextView tekst; /ovdje je deklarirana varijabla koja se ne koristi a postoji više lokalnih s istim imenom?
     static double lats, lons, late, lone, mojStartLat, mojStartLon, mojEndLat, mojEndLon;
     String[] title = {
             "alex",
@@ -99,7 +92,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         mAuth = FirebaseAuth.getInstance();
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
         mUserDatabase = FirebaseDatabase.getInstance().getReference().child("location");
 
         if(currentUser == null) {
@@ -129,7 +122,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     public void onStart() {
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
         super.onStart();
         // Check if user is signed in (non-null) and update UI accordingly.
         if(currentUser==null) {
@@ -175,8 +168,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 //pokazi refresh butt
                 refresh.setVisibility(View.VISIBLE);
                 prijavi.setEnabled(false);
-                prijavi.setText("Prihvati vožnju");
-                obrisi.setText("Otkaži vožnju");
+                String acceptRide= "Prihvati vožnju";
+                prijavi.setText(acceptRide);
+                String cancelRide = "Otkaži vožnju";
+                obrisi.setText(cancelRide);
                 prikazi_voznje();
                 return true;
             case R.id.putnik:
@@ -188,7 +183,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 moja_voznja();
                 return true;
             case R.id.logout:
-                FirebaseAuth.getInstance().signOut();
+                mAuth.signOut();
                 sendToWelcomePage();
                 return true;
             case R.id.profil:
@@ -237,6 +232,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     Log.e(TAG, "mojEND:" + mojEndLon);
                 }
                 else{
+
                 }
             }
         });
@@ -265,7 +261,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     public void otkazi_moju_voznju(){
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
         String uid = currentUser.getUid();
 
         myRef.child(uid).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -465,7 +461,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }//onActivityResult
     @Override
     public void onMapReady(final GoogleMap googleMap) {
-        TextView tekst = findViewById(R.id.textView);
+        TextView tekst = findViewById(R.id.textView); //je li ovdje ...540.
         tekst.setText("User "+ username);
         prijavi = findViewById(R.id.prijavi);
         obrisi = findViewById(R.id.obrisi);
@@ -544,7 +540,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     // putniku ne treba nista zeleno
                 }else {
                     if(!mark.getTitle().equals("End")){
-                        TextView tekst = findViewById(R.id.textView);
+                        TextView tekst = findViewById(R.id.textView); //...drugačija vrijednost teksta nego tu? (461)
                         tekst.setText("odabran: " + mark.getTitle());
                         //zapamti na koji je klikno
                         chosenOne=new LatLng(mark.getPosition().latitude, mark.getPosition().longitude);
