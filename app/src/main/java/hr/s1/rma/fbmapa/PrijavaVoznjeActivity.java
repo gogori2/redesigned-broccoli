@@ -93,6 +93,7 @@ public class PrijavaVoznjeActivity extends AppCompatActivity {
 //                    prijavaProgress.setCanceledOnTouchOutside(false);
                     //nadi_chosen(time,kontakt,razlog);
                     NadiChosenAsink asik = new NadiChosenAsink(time,kontakt,razlog);
+
                     asik.execute();
 //                    Toast.makeText(PrijavaVoznjeActivity.this, "Voznja prijavljena", Toast.LENGTH_LONG).show();
 //                    Intent returnIntent = new Intent();
@@ -127,6 +128,10 @@ public class PrijavaVoznjeActivity extends AppCompatActivity {
         }
         @Override
         protected void onProgressUpdate(String... progress) {
+//            prijavaProgress.setTitle("Logging in");
+//            prijavaProgress.setMessage("Please wait while we check your credentials");
+//            prijavaProgress.setCanceledOnTouchOutside(false);
+//            prijavaProgress.show();
         }
         @Override
         protected void onPostExecute(String result) {
@@ -150,7 +155,7 @@ public class PrijavaVoznjeActivity extends AppCompatActivity {
 
         Log.d(TAG, "Value in Main is: " + username);
         if(username == null){
-            Toast.makeText(this, "Try Again", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "You are not signed in", Toast.LENGTH_SHORT).show();
         }else{
             Message message = new Message(username, startLon, startLat, endLon, endLat, 1,
                                           username, time, kontakt, razlog, start, end);
@@ -160,7 +165,13 @@ public class PrijavaVoznjeActivity extends AppCompatActivity {
             myRef.updateChildren(childUpdates).addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
-                    Toast.makeText(PrijavaVoznjeActivity.this, "Successfully added your route", Toast.LENGTH_SHORT).show();
+                    if (task.isSuccessful()) {
+//                        prijavaProgress.dismiss();
+                        Toast.makeText(PrijavaVoznjeActivity.this, "Successfully added your route", Toast.LENGTH_SHORT).show();
+                    }else{
+//                        prijavaProgress.hide();
+                        Toast.makeText(PrijavaVoznjeActivity.this, "Something went wrong, try again", Toast.LENGTH_SHORT).show();
+                    }
                 }
             });
 

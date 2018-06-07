@@ -1,11 +1,14 @@
 package hr.s1.rma.fbmapa;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.location.Address;
+import android.location.Geocoder;
 import android.nfc.Tag;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
@@ -59,13 +62,15 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
     // Write a message to the database
     FirebaseDatabase database = FirebaseDatabase.getInstance();
     DatabaseReference myRef = database.getReference("location");
-    private DatabaseReference mdatabase,mUserDatabase;
+    private DatabaseReference mdatabase, mUserDatabase;
+
     public boolean voznja = false;
     public boolean klikNaInfo = false, uCrveno=false;
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
@@ -77,22 +82,16 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     static LatLng mojStart = new LatLng(45.340692, 14.407214);
     static LatLng mojEnd = new LatLng(45.340737, 14.408180);
     static LatLng chosenOne = new LatLng(0, 0);
-    //public int alex = 0;
     public int j = 0, i = 0;
     Button refresh, prijavi, obrisi;
     Marker mMarker;
-    TextView tekst;
     static double lats, lons, late, lone, mojStartLat, mojStartLon, mojEndLat, mojEndLon;
-    String[] title = {
-            "alex",
-            "gogo",
-            "vjera",
-    };
     private GoogleMap mMap;
     private static final String TAG = "*";
     private ArrayList<Message> messageList = new ArrayList<Message>();
     private FirebaseAuth mAuth;
-    private String username,uid;
+    private String username, uid;
+    private ProgressDialog prijavaProgress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,56 +100,36 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mAuth = FirebaseAuth.getInstance();
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         mUserDatabase = FirebaseDatabase.getInstance().getReference().child("location");
+       // uid = currentUser.getUid();
+        Log.e(TAG, "Username na pocetku: " + currentUser);
+        Log.e(TAG, "Uid na pocetku: " + uid);
 
-        if(currentUser == null) {
-            sendToWelcomePage();
-        }else{
-            uid = currentUser.getUid();
-            mdatabase = FirebaseDatabase.getInstance().getReference().child("Users").child(uid);
-            mdatabase.addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    username = dataSnapshot.child("Username").getValue(String.class);
-                    Log.d(TAG, "Value is: " + username);
-                }
-                @Override
-                public void onCancelled(DatabaseError error) {
-                    Log.w(TAG, "Failed to read value.", error.toException());
-                }
-            });
-            // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-            SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                    .findFragmentById(R.id.map);
-            mapFragment.getMapAsync(this);
-            refresh = findViewById(R.id.refresh);
-        }
+        check_login_status();
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
+        refresh = findViewById(R.id.refresh);
 
     }
 
     @Override
     public void onStart() {
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         super.onStart();
         // Check if user is signed in (non-null) and update UI accordingly.
-        if(currentUser==null) {
-            sendToWelcomePage();
-        }else{
-            uid = currentUser.getUid();
-            mdatabase = FirebaseDatabase.getInstance().getReference().child("Users").child(uid);
-            mdatabase.addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    username = dataSnapshot.child("Username").getValue(String.class);
-                    Log.d(TAG, "Value is: " + username);
-                }
-                @Override
-                public void onCancelled(DatabaseError error) {
-                    Log.w(TAG, "Failed to read value.", error.toException());
-                }
-            });
+        //check_login_status();
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        // put your code here...
+        //check_login_status();
+        if(voznja){
+            prikazi_voznje();
         }
     }
     private void sendToWelcomePage() {
+        Log.e(TAG, "Send to welcome page");
         Intent WelcomeIntent = new Intent (MapsActivity.this, WelcomeActivity.class);
         startActivity(WelcomeIntent);
         finish();
@@ -189,6 +168,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 return true;
             case R.id.logout:
                 FirebaseAuth.getInstance().signOut();
+                SaveSharedPreference.clearUserName(MapsActivity.this);
                 sendToWelcomePage();
                 return true;
             case R.id.profil:
@@ -200,6 +180,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
     public void moja_voznja() {
+        check_login_status();
         mMap.clear();
         Log.e(TAG, "moja voznja");
         final Marker markStart2 = mMap.addMarker(new MarkerOptions()
@@ -242,27 +223,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mojStart, 14.0f));
     }
-    public void salji_moju_voznju(){
-        //Intent intent = getIntent();
-        //String username = intent.getExtras().getString("username2");
-        Log.d(TAG, "Value in Main is: " + username);
-        if(username == null){
-            Toast.makeText(this, "Try Again", Toast.LENGTH_SHORT).show();
-        }else{
-            Message message = new Message(username, mojStartLon, mojStartLat, mojEndLon, mojEndLat, 1, username, username, username, username);
-            Map<String, Object> messageValues = message.toMap();
-            Map<String, Object> childUpdates = new HashMap<>();
-            childUpdates.put(uid, messageValues);
-            myRef.updateChildren(childUpdates).addOnCompleteListener(new OnCompleteListener<Void>() {
-                @Override
-                public void onComplete(@NonNull Task<Void> task) {
-                    Toast.makeText(MapsActivity.this, "Successfully added your route", Toast.LENGTH_SHORT).show();
-                }
-            });
-
-        }
-        mMap.clear();
-    }
 
     public void otkazi_moju_voznju(){
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -277,7 +237,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     public void prikazi_voznje(){
-        //refresh hehe
         mUserDatabase = FirebaseDatabase.getInstance().getReference().child("location");
         mMap.clear();
         Log.e(TAG, "prikazi voznje");
@@ -312,19 +271,24 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                 .width(5)
                                 .color(Color.GREEN));
                     }
+                    /*TextView tekst = findViewById(R.id.textView);
+                    tekst.setText("User "+ samo_ulica(getCompleteAddressString(sydney2.latitude,sydney2.longitude)));
+                    tekst.setText("User "+ samo_ulica(getCompleteAddressString(sydney3.latitude,sydney3.longitude)));*/
+                    //getCompleteAddressString(sydney2.latitude,sydney2.longitude);
                     //googleMap.animateCamera(CameraUpdateFactory.newLatLng(sydney2));
 
-//                    // Izgradnja url-a za Directions API:
-//                    String url = getDirectionsUrl(sydney2, sydney3);
-//                    // Dohvat json podataka s Google Directions API-a:
-//                    DownloadTask downloadTask = new DownloadTask();
-//                    downloadTask.execute(url);
+                    // Izgradnja url-a za Directions API:
+                    //String url = getDirectionsUrl(sydney2, sydney3);
+                    // Dohvat json podataka s Google Directions API-a:
+                    //DownloadTask downloadTask = new DownloadTask();
+                    //Log.e(TAG, "Tu sam");
+                    //downloadTask.execute(url);
 
-                    Log.e(TAG, "IME:" + message.id);
-                    Log.e(TAG, "\n"+"STATUS:" + message.status);
-                    Log.e(TAG, "uCRVENO:" + uCrveno);
+//                    Log.e(TAG, "IME:" + message.id);
+//                    Log.e(TAG, "\n"+"STATUS:" + message.status);
+//                    Log.e(TAG, "uCRVENO:" + uCrveno);
                     // Vizualizacija informacija o ruti u info windowu markera:
-                    mMarker.setSnippet("Vrijeme polaska: " + message.time + "\nZašto mene:" + message.razlog + "\nKontakt:" + message.kontakt );
+                    mMarker.setSnippet("Vrijeme polaska: " + message.time + "\nZašto mene:" + message.razlog + "\nKontakt:" + message.kontakt + "\nStart:" + message.start + "\nEnd:" + message.end);
                     // mMarker.showInfoWindow();
 //                    Snackbar.make(parentLayout, message.id, Snackbar.LENGTH_LONG)
 //                            .setAction("CLOSE", new View.OnClickListener() {
@@ -359,7 +323,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                Log.e(TAG, "Ovo je vozac:" +  message2.vozac);
                                Message message3 = new Message(message2.id, message2.longitudeStart, message2.latitudeStart,
                                        message2.longitudeEnd, message2.latitudeEnd, 1, "ODUSTAO " + message2.vozac,
-                                       message2.time, message2.kontakt, message2.razlog);
+                                       message2.time, message2.kontakt, message2.razlog, message2.start, message2.end);
                                Map<String, Object> messageValues = message3.toMap();
                                Map<String, Object> childUpdates = new HashMap<>();
 
@@ -370,7 +334,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
      //                        String url = getDirectionsUrl(sydney4, sydney5);
      //                        // Dohvat json podataka s Google Directions API-a:
      //                        DownloadTask downloadTask = new DownloadTask();
-     //                        downloadTask.execute(url);
+//                             downloadTask.execute(url);
                                Polyline line = mMap.addPolyline(new PolylineOptions()
                                        .add(sydney4,sydney5)
                                        .width(5)
@@ -409,7 +373,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                             }else {
                                     Message message3 = new Message(message2.id, message2.longitudeStart, message2.latitudeStart,
                                                                    message2.longitudeEnd, message2.latitudeEnd, 2, username, message2.time,
-                                                                   message2.kontakt, message2.razlog);
+                                                                   message2.kontakt, message2.razlog,message2.start, message2.end);
                                     Map<String, Object> messageValues = message3.toMap();
                                     Map<String, Object> childUpdates = new HashMap<>();
                                     Log.e(TAG, "Ovdje sam, status: " + message3.status);
@@ -442,14 +406,26 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
     }
 
-    @Override
-    public void onResume(){
-        super.onResume();
-        // put your code here...
-        if(voznja){
-            prikazi_voznje();
+    private boolean check_login_status(){
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+
+        if(SaveSharedPreference.getUserName(MapsActivity.this).length() == 0){
+                // call Login Activity
+            Log.e(TAG, "Username login status " + username);
+            sendToWelcomePage();
+            return false;
+        }
+        else{
+            uid = currentUser.getUid();
+            username=SaveSharedPreference.getUserName(MapsActivity.this);
+            TextView tekst = findViewById(R.id.textView);
+            tekst.setText("User "+ username);
+                // Stay at the current activity.
+            Log.e(TAG, "Username login status " + username);
+            return true;
         }
     }
+
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 1) {
             if(resultCode == RESULT_OK){
@@ -465,6 +441,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }//onActivityResult
     @Override
     public void onMapReady(final GoogleMap googleMap) {
+        final ProgressDialog prijavaProgress;
+        prijavaProgress = new ProgressDialog(this);
+
         TextView tekst = findViewById(R.id.textView);
         tekst.setText("User "+ username);
         prijavi = findViewById(R.id.prijavi);
@@ -487,7 +466,16 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     prijava.putExtra("mE_lon", mojEndLon);
                     prijava.putExtra("mE_lat", mojEndLat);
                     prijava.putExtra("username", username);
+
+                    prijavaProgress.setTitle("Sending in");
+                    prijavaProgress.setMessage("Please wait while we send your data");
+                    prijavaProgress.show();
+                    prijavaProgress.setCanceledOnTouchOutside(false);
+
+                    prijava.putExtra("start", samo_ulica(getCompleteAddressString(mojStartLat,mojStartLon)));
+                    prijava.putExtra("end", samo_ulica(getCompleteAddressString(mojEndLat,mojEndLon)));
                     startActivity(prijava);
+                    prijavaProgress.dismiss();
                 }else{
                     //ako vozac klikne:
                     if(klikNaInfo){
@@ -519,7 +507,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
         //googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney, 14.0f));
-
         googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener()
         {
             @Override
@@ -623,6 +610,35 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         moja_voznja();
     }
 
+    private String getCompleteAddressString(double LATITUDE, double LONGITUDE) {
+        String strAdd = "";
+        Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+        try {
+            List<Address> addresses = geocoder.getFromLocation(LATITUDE, LONGITUDE, 1);
+            if (addresses != null) {
+                Address returnedAddress = addresses.get(0);
+                StringBuilder strReturnedAddress = new StringBuilder("");
+
+                for (int i = 0; i <= returnedAddress.getMaxAddressLineIndex(); i++) {
+                    strReturnedAddress.append(returnedAddress.getAddressLine(i)).append("\n");
+                }
+                strAdd = strReturnedAddress.toString();
+                Log.w("location address", strReturnedAddress.toString());
+            } else {
+                Log.w("location address", "No Address returned!");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.w("loction address", "Canont get Address!");
+        }
+        return strAdd;
+    }
+    private String samo_ulica(String string){
+        String ulica="";
+        String[] namesList = string.split(",");
+        ulica = namesList[0];
+        return ulica;
+    }
     // Stvaranje Directions API url-a na temljeu dvije geo-lokacije
     // (od 'origin' do 'dest'):
     private String getDirectionsUrl(LatLng origin, LatLng dest){

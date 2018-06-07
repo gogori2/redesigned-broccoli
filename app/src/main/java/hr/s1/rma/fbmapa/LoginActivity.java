@@ -37,6 +37,7 @@ public class LoginActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private DatabaseReference mUserDatabase;
     private static final String TAG = "*";
+    private String username;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,7 +65,7 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View v) {
                 String email = LoginEmail.getText().toString();
                 String password = LoginPassword.getText().toString();
-                if (!TextUtils.isEmpty(email) || !TextUtils.isEmpty(password)){
+                if (!TextUtils.isEmpty(email) && !TextUtils.isEmpty(password)){
                     LoginProgress.setTitle("Logging in");
                     LoginProgress.setMessage("Please wait while we check your credentials");
                     LoginProgress.setCanceledOnTouchOutside(false);
@@ -91,13 +92,22 @@ public class LoginActivity extends AppCompatActivity {
                             String deviceToken = FirebaseInstanceId.getInstance().getToken();
                             String current_user_Id = mAuth.getCurrentUser().getUid();
                             mUserDatabase.child(current_user_Id).child("deviceToken").setValue(deviceToken);
+                            mUserDatabase.child(current_user_Id).addValueEventListener(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                    username = dataSnapshot.child("Username").getValue(String.class);
+                                    Log.e(TAG, "Username u loginu " + username);
+                                    //zapisi u shared pref
+                                    SaveSharedPreference.setUserName(LoginActivity.this,username);
+                                    Log.e(TAG, "Value is: " + username);
+                                }
+                                @Override
+                                public void onCancelled(DatabaseError error) {
+                                    Log.w(TAG, "Failed to read value.", error.toException());
+                                }
+                            });
                             Log.d(TAG, "signInWithEmail:success");
-                            Intent mainIntent = new Intent(LoginActivity.this, MapsActivity.class);
-                            //proslijedi username u mainactivity
-                            //mainIntent.putExtra("username2",username);
-                            mainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                            startActivity(mainIntent);
-                            finish();
+
                         } else {
                             LoginProgress.hide();
                             // If sign in fails, display a message to the user.
@@ -105,7 +115,14 @@ public class LoginActivity extends AppCompatActivity {
                             Toast.makeText(LoginActivity.this, "Authentication failed. Please check the form and try again ",
                                     Toast.LENGTH_SHORT).show();
                         }
+                         logiran_sam_vratiMeuMain();
                     }
                 });
+    }
+    private void logiran_sam_vratiMeuMain (){
+        Intent mainIntent = new Intent(LoginActivity.this, MapsActivity.class);
+        mainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(mainIntent);
+        finish();
     }
 }

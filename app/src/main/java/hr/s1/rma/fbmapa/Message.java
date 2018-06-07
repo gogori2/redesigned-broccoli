@@ -19,12 +19,15 @@ public class Message {
     public String time;
     public String kontakt;
     public String razlog;
+    public String start;
+    public String end;
     public Message() {
         // Default constructor required for calls to DataSnapshot.getValue(Post.class)
     }
 
     public Message(String id, double longitude, double latitude, double longitude2,
-                   double latitude2, int status, String vozac, String time, String kontakt, String razlog) {
+                   double latitude2, int status, String vozac, String time, String kontakt,
+                   String razlog, String start, String end) {
         this.id = id;
         this.longitudeStart = longitude;
         this.latitudeStart = latitude;
@@ -35,6 +38,8 @@ public class Message {
         this.time = time;
         this.kontakt = kontakt;
         this.razlog = razlog;
+        this.start = start;
+        this.end = end;
     }
 
     @Exclude
@@ -50,6 +55,8 @@ public class Message {
         result.put("time", time);
         result.put("kontakt", kontakt);
         result.put("razlog", razlog);
+        result.put("start", start);
+        result.put("end", end);
         return result;
     }
 }

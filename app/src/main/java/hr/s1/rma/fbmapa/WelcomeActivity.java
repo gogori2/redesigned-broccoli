@@ -27,10 +27,21 @@ public class WelcomeActivity extends AppCompatActivity {
         myLogButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent log_intent = new Intent(WelcomeActivity.this, LoginActivity.class);
-                startActivity(log_intent);
+                if(SaveSharedPreference.getUserName(WelcomeActivity.this).length() == 0){
+                    //nastavi dalje, nema username zapisan
+                    Intent log_intent = new Intent(WelcomeActivity.this, LoginActivity.class);
+                    startActivity(log_intent);
+                }
+                else{
+                    //preskoci form i vrati me u Main
+                    Intent mainIntent = new Intent(WelcomeActivity.this, MapsActivity.class);
+                    mainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(mainIntent);
+                }
             }
         });
+    }
+    private void logiran_sam_vratiMeuMain (){
 
     }
 }

@@ -70,7 +70,7 @@ public class RegisterActivity extends AppCompatActivity {
                 String email = mEmail.getText().toString();
                 String password = mPassword.getText().toString();
 
-                if (!TextUtils.isEmpty(username) || !TextUtils.isEmpty(email) || !TextUtils.isEmpty(password) ){
+                if (!TextUtils.isEmpty(username) && !TextUtils.isEmpty(email) && !TextUtils.isEmpty(password) ){
                     register_user(username, email, password);
                     mRegProgress.setTitle("Registering user");
                     mRegProgress.setMessage("Please wait while we create your account !");
@@ -100,6 +100,9 @@ public class RegisterActivity extends AppCompatActivity {
                             editor.apply(); // commit changes*/
                             String deviceToken = FirebaseInstanceId.getInstance().getToken();
                             mdatabase = FirebaseDatabase.getInstance().getReference().child("Users").child(uid);
+                            //prvo pobrisi a onda spremi u shared pref username
+                            SaveSharedPreference.clearUserName(RegisterActivity.this);
+                            SaveSharedPreference.setUserName(RegisterActivity.this, username);
                             HashMap<String, Object> result = new HashMap<>();
                             result.put("Username", username);
                             result.put("deviceToken", deviceToken);
