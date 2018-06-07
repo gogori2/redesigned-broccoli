@@ -10,12 +10,14 @@ import java.util.Map;
 
 public class ProfileActivity extends AppCompatActivity {
     private static final String TAG = "*";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
         Log.e(TAG, "pokrenut Profil");
         //treba dodati toolbar i svasta da bi radila strjelica
+
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
     @Override
