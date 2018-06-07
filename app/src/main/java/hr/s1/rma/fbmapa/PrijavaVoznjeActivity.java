@@ -14,6 +14,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,6 +38,8 @@ public class PrijavaVoznjeActivity extends AppCompatActivity {
     private TextInputEditText mtime;
     private TextInputEditText  mkontakt;
     private TextInputEditText  mrazlog;
+    private EditText mStart;
+    private EditText mEnd;
     private Button mok_button,mcancel_button;
     private ProgressDialog prijavaProgress;
     private static final String TAG = "*";
@@ -52,12 +55,20 @@ public class PrijavaVoznjeActivity extends AppCompatActivity {
         uid = currentUser.getUid();
         mtime = (TextInputEditText ) findViewById(R.id.time);
         mkontakt = (TextInputEditText )findViewById(R.id.kontakt);
-        mrazlog = (TextInputEditText )findViewById(R.id.razlog);
+        mrazlog = (TextInputEditText ) findViewById(R.id.razlog);
+        mStart = (EditText ) findViewById(R.id.editTextStart);
+        mEnd = (EditText ) findViewById(R.id.editTextEnd);
         mok_button = findViewById(R.id.ok_button);
         mcancel_button = findViewById(R.id.Cancel_button);
-
         prijavaProgress = new ProgressDialog(this);
 
+        Intent intent = getIntent();
+        Bundle extras = intent.getExtras();
+        final String start = extras.getString("start");
+        final String end = extras.getString("end");
+
+        mStart.setText(start);
+        mEnd.setText(end);
         mrazlog.setOnEditorActionListener(new TextInputEditText.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -75,7 +86,7 @@ public class PrijavaVoznjeActivity extends AppCompatActivity {
                 String kontakt = mkontakt.getText().toString();
                 String razlog = mrazlog.getText().toString();
 
-                if (!TextUtils.isEmpty(time) || !TextUtils.isEmpty(kontakt)){
+                if (!TextUtils.isEmpty(time) && !TextUtils.isEmpty(kontakt) && !TextUtils.isEmpty(razlog)){
 //                    prijavaProgress.setTitle("Sending in");
 //                    prijavaProgress.setMessage("Please wait while we send your data");
 //                    prijavaProgress.show();
@@ -83,7 +94,7 @@ public class PrijavaVoznjeActivity extends AppCompatActivity {
                     //nadi_chosen(time,kontakt,razlog);
                     NadiChosenAsink asik = new NadiChosenAsink(time,kontakt,razlog);
                     asik.execute();
-                    //Toast.makeText(PrijavaVoznjeActivity.this, "Voznja prijavljena", Toast.LENGTH_LONG).show();
+//                    Toast.makeText(PrijavaVoznjeActivity.this, "Voznja prijavljena", Toast.LENGTH_LONG).show();
 //                    Intent returnIntent = new Intent();
 //                    setResult(RESULT_OK, returnIntent);
 //                    finish();
@@ -134,13 +145,15 @@ public class PrijavaVoznjeActivity extends AppCompatActivity {
         final Double endLon = extras.getDouble("mE_lon");
         final Double endLat = extras.getDouble("mE_lat");
         final String username = extras.getString("username");
-        Log.d(TAG, "Value in Main is: " + username);
+        final String start = extras.getString("start");
+        final String end = extras.getString("end");
 
+        Log.d(TAG, "Value in Main is: " + username);
         if(username == null){
             Toast.makeText(this, "Try Again", Toast.LENGTH_SHORT).show();
         }else{
             Message message = new Message(username, startLon, startLat, endLon, endLat, 1,
-                                          username, time, kontakt, razlog);
+                                          username, time, kontakt, razlog, start, end);
             Map<String, Object> messageValues = message.toMap();
             Map<String, Object> childUpdates = new HashMap<>();
             childUpdates.put(uid, messageValues);
