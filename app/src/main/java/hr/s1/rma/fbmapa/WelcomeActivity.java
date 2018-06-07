@@ -21,7 +21,7 @@ public class WelcomeActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
             Intent reg_intent = new Intent(WelcomeActivity.this, RegisterActivity.class);
-            startActivity(reg_intent);
+               startActivity(reg_intent);
             }
         });
         myLogButton.setOnClickListener(new View.OnClickListener() {
