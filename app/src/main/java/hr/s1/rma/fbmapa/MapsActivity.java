@@ -100,16 +100,17 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mAuth = FirebaseAuth.getInstance();
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         mUserDatabase = FirebaseDatabase.getInstance().getReference().child("location");
-       // uid = currentUser.getUid();
+//        uid = currentUser.getUid();
         Log.e(TAG, "Username na pocetku: " + currentUser);
-        Log.e(TAG, "Uid na pocetku: " + uid);
+//        Log.e(TAG, "Uid na pocetku: " + uid);
 
-        check_login_status();
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
-        refresh = findViewById(R.id.refresh);
-
+        if(check_login_status()){
+            SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                    .findFragmentById(R.id.map);
+            mapFragment.getMapAsync(this);
+            refresh = findViewById(R.id.refresh);
+        }else{
+        }
     }
 
     @Override
@@ -180,7 +181,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
     public void moja_voznja() {
-        check_login_status();
         mMap.clear();
         Log.e(TAG, "moja voznja");
         final Marker markStart2 = mMap.addMarker(new MarkerOptions()
@@ -408,20 +408,18 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private boolean check_login_status(){
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-
         if(SaveSharedPreference.getUserName(MapsActivity.this).length() == 0){
                 // call Login Activity
-            Log.e(TAG, "Username login status " + username);
+            Log.e(TAG, "Username login status FALSE " + username);
             sendToWelcomePage();
             return false;
-        }
-        else{
+        }else{
             uid = currentUser.getUid();
             username=SaveSharedPreference.getUserName(MapsActivity.this);
             TextView tekst = findViewById(R.id.textView);
             tekst.setText("User "+ username);
                 // Stay at the current activity.
-            Log.e(TAG, "Username login status " + username);
+            Log.e(TAG, "Username login status TRUE " + username);
             return true;
         }
     }

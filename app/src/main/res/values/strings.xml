@@ -11,4 +11,5 @@
     <string name="welcome_button_registration">register me</string>
     <string name="welcom_button_sign_in">Sign in</string>
     <string name="moj_profil_natpis">Moj profil</string>
+    <string name="welcome_opis">Vozac ili putnik, </string>
 </resources>

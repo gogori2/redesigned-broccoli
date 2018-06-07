@@ -73,7 +73,7 @@ public class LoginActivity extends AppCompatActivity {
                     login_user(email, password);
                 }else{
                     Toast.makeText(LoginActivity.this, "Something is missing",
-                            Toast.LENGTH_SHORT).show();
+                    Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -100,26 +100,28 @@ public class LoginActivity extends AppCompatActivity {
                                     //zapisi u shared pref
                                     SaveSharedPreference.setUserName(LoginActivity.this,username);
                                     Log.e(TAG, "Value is: " + username);
+                                    Log.e(TAG, "signInWithEmail:success");
+                                    logiran_sam_vratiMeuMain();
                                 }
                                 @Override
                                 public void onCancelled(DatabaseError error) {
                                     Log.w(TAG, "Failed to read value.", error.toException());
                                 }
                             });
-                            Log.d(TAG, "signInWithEmail:success");
-
+                        // ovdje se nista ne izvrsava
+                            Log.e(TAG, "signInWithEmail:NIKAD");
                         } else {
                             LoginProgress.hide();
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithEmail:failure", task.getException());
                             Toast.makeText(LoginActivity.this, "Authentication failed. Please check the form and try again ",
-                                    Toast.LENGTH_SHORT).show();
+                            Toast.LENGTH_SHORT).show();
                         }
-                         logiran_sam_vratiMeuMain();
                     }
                 });
     }
     private void logiran_sam_vratiMeuMain (){
+        Log.e(TAG, "logiran_sam_vratiMeuMain");
         Intent mainIntent = new Intent(LoginActivity.this, MapsActivity.class);
         mainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(mainIntent);

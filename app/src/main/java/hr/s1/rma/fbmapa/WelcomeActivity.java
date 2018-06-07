@@ -3,6 +3,7 @@ package hr.s1.rma.fbmapa;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
@@ -10,10 +11,13 @@ public class WelcomeActivity extends AppCompatActivity {
 
     private Button myRegButton;
     private Button myLogButton;
+    private static final String TAG = "*";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_welcome);
+        Log.e(TAG, "Evo me u Welcome");
 
         myRegButton = findViewById(R.id.reg_button);
         myLogButton = findViewById(R.id.login_button_welcome);
@@ -40,8 +44,5 @@ public class WelcomeActivity extends AppCompatActivity {
                 }
             }
         });
-    }
-    private void logiran_sam_vratiMeuMain (){
-
     }
 }
