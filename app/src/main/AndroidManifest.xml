@@ -58,7 +58,8 @@
         <activity android:name=".RegisterActivity" />
         <activity android:name=".LoginActivity" />
         <activity android:name=".ProfileActivity" />
-        <activity android:name=".PrijavaVoznjeActivity"></activity>
+        <activity android:name=".PrijavaVoznjeActivity" />
+        <activity android:name=".HelpActivity"></activity>
     </application>
 
 </manifest>

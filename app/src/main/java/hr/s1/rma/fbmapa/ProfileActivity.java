@@ -23,7 +23,8 @@ public class ProfileActivity extends AppCompatActivity {
     {
         super.onBackPressed();
         Log.e(TAG, "stisnut back u Profilu");
-        startActivity(new Intent(ProfileActivity.this, MapsActivity.class));
+        //start activity je pokrene ispocetka
+        //startActivity(new Intent(ProfileActivity.this, MapsActivity.class));
         finish();
     }
 }

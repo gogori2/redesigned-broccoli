@@ -4,12 +4,14 @@
     <string name="zatrazi_voznju">Zatraži vožnju</string>
     <string name="obrisi_voznju">Otkaži vožnju</string>
     <string name="google_maps_key">AIzaSyBQIUqOHHvwkbomjSz0gi_um07AQDAQhjg</string>
-    <string name="login_natpis">Sign in</string>
-    <string name="login_button_natpis">Log in</string>
-    <string name="registracija_natpis">Create a New Account</string>
+    <string name="login_natpis">Prijava korisnika</string>
+    <string name="login_button_natpis">Prijavi me</string>
+    <string name="registracija_natpis">Registracija korisnika</string>
     <string name="welcome_natpis">Dobrodosli, prijavite se za pocetak</string>
-    <string name="welcome_button_registration">register me</string>
-    <string name="welcom_button_sign_in">Sign in</string>
+    <string name="welcome_button_registration">Registracija</string>
+    <string name="welcom_button_sign_in">Prijavi se</string>
     <string name="moj_profil_natpis">Moj profil</string>
-    <string name="welcome_opis">Vozac ili putnik, </string>
+    <string name="welcome_opis">Vozač ili putnik, nije važno </string>
+    <string name="reg_button_natpis">Izradi račun</string>
+    <string name="zasto_text_button"><u>Zašto da se registriram?</u></string>
 </resources>

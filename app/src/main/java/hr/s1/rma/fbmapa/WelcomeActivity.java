@@ -6,11 +6,13 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 public class WelcomeActivity extends AppCompatActivity {
 
     private Button myRegButton;
     private Button myLogButton;
+    private TextView button;
     private static final String TAG = "*";
 
     @Override
@@ -21,6 +23,15 @@ public class WelcomeActivity extends AppCompatActivity {
 
         myRegButton = findViewById(R.id.reg_button);
         myLogButton = findViewById(R.id.login_button_welcome);
+        button = findViewById(R.id.zasto_text_button);
+
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent zastointent = new Intent(WelcomeActivity.this, ProfileActivity.class);
+                startActivity(zastointent);
+            }
+        });
         myRegButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

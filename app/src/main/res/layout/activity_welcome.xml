@@ -5,6 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".WelcomeActivity">
+    <!--android:background="@drawable/gradient_background"-->
+
 
     <TextView
         android:id="@+id/textView5"
@@ -14,6 +16,7 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="99dp"
         android:text="@string/welcome_opis"
+        android:textColor="@android:color/holo_blue_dark"
         android:textSize="18sp" />
 
     <TextView
@@ -24,7 +27,8 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="52dp"
         android:text="@string/welcome_natpis"
-        android:textSize="18sp" />
+        android:textColor="@android:color/background_dark"
+        android:textSize="22sp" />
 
     <Button
         android:id="@+id/reg_button"
@@ -33,6 +37,7 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="140dp"
+        android:textAllCaps="false"
         android:text="@string/welcome_button_registration" />
 
     <Button
@@ -42,6 +47,19 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="214dp"
+        android:textAllCaps="false"
         android:text="@string/welcom_button_sign_in"
         android:textColor="@color/colorAccent" />
+
+    <TextView
+        android:id="@+id/zasto_text_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="70dp"
+        android:textAllCaps="false"
+        android:text="@string/zasto_text_button"
+        style="@style/Widget.AppCompat.Button.Borderless.Colored"
+        />
 </RelativeLayout>

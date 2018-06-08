@@ -91,8 +91,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private ArrayList<Message> messageList = new ArrayList<Message>();
     private FirebaseAuth mAuth;
     private String username, uid;
-    private ProgressDialog prijavaProgress;
-
+    private TextView aStart,aEnd;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -102,8 +101,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mUserDatabase = FirebaseDatabase.getInstance().getReference().child("location");
 //        uid = currentUser.getUid();
         Log.e(TAG, "Username na pocetku: " + currentUser);
-//        Log.e(TAG, "Uid na pocetku: " + uid);
-
         if(check_login_status()){
             SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                     .findFragmentById(R.id.map);
@@ -154,14 +151,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 voznja = true;
                 //pokazi refresh butt
                 refresh.setVisibility(View.VISIBLE);
-                prijavi.setEnabled(false);
+                prijavi.setEnabled(false); obrisi.setEnabled(false);
                 prijavi.setText("Prihvati vožnju");
                 obrisi.setText("Otkaži vožnju");
                 prikazi_voznje();
                 return true;
             case R.id.putnik:
                 voznja=false;
-                prijavi.setEnabled(true);
+                prijavi.setEnabled(true);obrisi.setEnabled(true);
                 prijavi.setText(this.getResources().getString(R.string.zatrazi_voznju));
                 obrisi.setText(this.getResources().getString(R.string.obrisi_voznju));
                 refresh.setVisibility(View.GONE);
@@ -176,6 +173,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 Intent ProfileInt = new Intent (MapsActivity.this, ProfileActivity.class);
                 startActivity(ProfileInt);
                 return true;
+            case R.id.about:
+                Intent HelpInt = new Intent (MapsActivity.this, HelpActivity.class);
+                startActivity(HelpInt);
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -183,6 +184,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void moja_voznja() {
         mMap.clear();
         Log.e(TAG, "moja voznja");
+        //da ne rusi prazan string
+        aStart = findViewById(R.id.textStart);
+        aEnd = findViewById(R.id.textEnd);
+        if(aStart.getText().equals(null) && aEnd.getText().equals(null)){
+            aStart.setText("Start");
+            aEnd.setText("End");
+        }
+
         final Marker markStart2 = mMap.addMarker(new MarkerOptions()
                 .position(mojStart)
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
@@ -207,15 +216,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     mojStartLon = markStart2.getPosition().longitude;
                     mojStartLat = markStart2.getPosition().latitude;
                     mojStart = new LatLng(mojStartLat, mojStartLon);
+                    aStart.setText(samo_ulica(getCompleteAddressString(mojStartLat, mojStartLon)));
 
                     mojEndLon = markEnd2.getPosition().longitude;
                     mojEndLat = markEnd2.getPosition().latitude;
                     mojEnd = new LatLng(mojEndLat, mojEndLon);
-
-                    Log.e(TAG, "mojSTART:" + mojStartLat);
-                    Log.e(TAG, "mojSTART:" + mojStartLon);
-                    Log.e(TAG, "mojEND:" + mojEndLat);
-                    Log.e(TAG, "mojEND:" + mojEndLon);
+                    aEnd.setText(samo_ulica(getCompleteAddressString(mojEndLat, mojEndLon)));
                 }
                 else{
                 }
@@ -235,7 +241,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
     }
-
+    public void nacrtaj_voznje(){
+        Log.e(TAG, "velicina liste:" + messageList.size());
+        for(int i=0; i<messageList.size();i++){
+            messageList.toArray();
+        }
+    }
     public void prikazi_voznje(){
         mUserDatabase = FirebaseDatabase.getInstance().getReference().child("location");
         mMap.clear();
@@ -248,6 +259,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     Log.e(TAG, "onChildAdded:" + message.latitudeEnd);
                     Log.e(TAG, "onChildAdded:" + message.longitudeEnd);
 
+                    messageList.add(message);
                     sydney2 = new LatLng(message.latitudeEnd, message.longitudeEnd);
                     sydney3 = new LatLng(message.latitudeStart, message.longitudeStart);
 
@@ -271,36 +283,17 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                 .width(5)
                                 .color(Color.GREEN));
                     }
-                    /*TextView tekst = findViewById(R.id.textView);
-                    tekst.setText("User "+ samo_ulica(getCompleteAddressString(sydney2.latitude,sydney2.longitude)));
-                    tekst.setText("User "+ samo_ulica(getCompleteAddressString(sydney3.latitude,sydney3.longitude)));*/
-                    //getCompleteAddressString(sydney2.latitude,sydney2.longitude);
-                    //googleMap.animateCamera(CameraUpdateFactory.newLatLng(sydney2));
-
-                    // Izgradnja url-a za Directions API:
-                    //String url = getDirectionsUrl(sydney2, sydney3);
-                    // Dohvat json podataka s Google Directions API-a:
-                    //DownloadTask downloadTask = new DownloadTask();
-                    //Log.e(TAG, "Tu sam");
-                    //downloadTask.execute(url);
-
-//                    Log.e(TAG, "IME:" + message.id);
-//                    Log.e(TAG, "\n"+"STATUS:" + message.status);
-//                    Log.e(TAG, "uCRVENO:" + uCrveno);
-                    // Vizualizacija informacija o ruti u info windowu markera:
                     mMarker.setSnippet("Vrijeme polaska: " + message.time + "\nZašto mene:" + message.razlog + "\nKontakt:" + message.kontakt + "\nStart:" + message.start + "\nEnd:" + message.end);
-                    // mMarker.showInfoWindow();
-//                    Snackbar.make(parentLayout, message.id, Snackbar.LENGTH_LONG)
-//                            .setAction("CLOSE", new View.OnClickListener() {
-//                                @Override
-//                                public void onClick(View view) {
-//                                }
-//                            })
-//                            .show();
+                    //String url = getDirectionsUrl(sydney2, sydney3);
+                    //DownloadTask downloadTask = new DownloadTask();
+                    //downloadTask.execute(url);
+                    Log.e(TAG, "velicina liste:" + messageList.size());
+
                 }
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
+                Toast.makeText(MapsActivity.this, "Error connecting to Database", Toast.LENGTH_SHORT).show();
             }
         });
         //camera
@@ -450,6 +443,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap=googleMap;
         //button radi na pocetku
         prijavi.setEnabled(true);
+        obrisi.setEnabled(true);
         prijavi = findViewById(R.id.prijavi);
         obrisi = findViewById(R.id.obrisi);
         refresh = findViewById(R.id.refresh);
@@ -470,8 +464,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     prijavaProgress.show();
                     prijavaProgress.setCanceledOnTouchOutside(false);
 
-                    prijava.putExtra("start", samo_ulica(getCompleteAddressString(mojStartLat,mojStartLon)));
-                    prijava.putExtra("end", samo_ulica(getCompleteAddressString(mojEndLat,mojEndLon)));
+                    prijava.putExtra("start", aStart.getText());
+                    prijava.putExtra("end", aEnd.getText());
                     startActivity(prijava);
                     prijavaProgress.dismiss();
                 }else{
@@ -509,9 +503,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         {
             @Override
             public void onMapClick(LatLng poz) {
-                //ponisti odabir na klik sa strane
-                prijavi.setEnabled(false);
-                klikNaInfo=false;
+                if(voznja) {
+                    //ponisti odabir na klik sa strane KOD VOZACA
+                    prijavi.setEnabled(false);
+                    obrisi.setEnabled(false);
+                    klikNaInfo = false;
+                }
             }
         });
 
@@ -536,6 +533,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         Log.e(TAG,String.valueOf(mark.getPosition().longitude));
                         klikNaInfo=true;
                         prijavi.setEnabled(true);
+                        obrisi.setEnabled(true);
                         Log.e(TAG, "odabran je \n" + mark.getPosition().latitude);
                         // TODO Auto-generated method stub
                         // Prilagodjeni 'info window' za marker (omogucava snippet teksta kroz vise redaka)
@@ -564,9 +562,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 title.setTypeface(null, Typeface.BOLD);
                 title.setText(marker.getTitle());
                 // Snippet:
-                // (Sadrzavat ce podatke o udaljenosti (km) i ocekivanom trajanju hoda (min),
-                // a ti podaci ce biti rezultat informacija dobivenih putem Directions API-a)
-                // 'info window' layout:
                 info.addView(title);
                 if(voznja){
                     if(marker.getTitle().equals("End")){
@@ -582,24 +577,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     odabran.setText("ODABRANO");
                     info.addView(odabran);
                     }
-                    /*if(chosenOne.latitude == marker.getPosition().latitude && chosenOne.longitude == marker.getPosition().longitude){
-                        //treba uvijek biti crveno da se ne moze mijenjat dok se ne obrise voznja
-                    }
-                    /*if (!klikNaInfo){
-                        odabran.setText("KLIKNI ZA ODABIR");
-                        klikNaInfo=true;
-                    }else{
-                        odabran.setTextColor(Color.RED);
-                        title.setTypeface(null, Typeface.BOLD);
-                        odabran.setText("ODABRANO");
-                        //zapamti na koji je klikno
-                        chosenOne=new LatLng(marker.getPosition().latitude,marker.getPosition().longitude);
-                        Log.e(TAG,String.valueOf(marker.getPosition().longitude));
-                        klikNaInfo=false;
-                    }
-                    info.addView(snippet);
-                    info.addView(odabran);*/
-
                 }
                 return info;
             }
