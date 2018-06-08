@@ -47,8 +47,9 @@
                 android:layout_marginTop="45dp" />
             <!--android:src="@drawable/photocercle"-->
             <TextView
+                android:id="@+id/profile_username"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="410dp"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="10dp"
                 android:text="Nickname"
@@ -101,14 +102,18 @@
                 android:contentDescription="TODO" />
             <!--android:src="@drawable/ic_forum_black_24dp"-->
             <TextView
+                android:id="@+id/email_profile"
                 android:layout_width="wrap_content"
-
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:paddingLeft="20dp"
                 android:paddingStart="20dp"
-                android:text="+266 225 225"
                 android:textStyle="bold" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/contact_profile"
+                />
         </LinearLayout>
     </LinearLayout>
 
