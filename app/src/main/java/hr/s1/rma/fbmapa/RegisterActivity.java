@@ -97,6 +97,8 @@ public class RegisterActivity extends AppCompatActivity {
                             HashMap<String, Object> result = new HashMap<>();
                             result.put("Username", username);
                             result.put("deviceToken", deviceToken);
+                            result.put("ContactNumber", 0);
+
                             mdatabase.setValue(result).addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
