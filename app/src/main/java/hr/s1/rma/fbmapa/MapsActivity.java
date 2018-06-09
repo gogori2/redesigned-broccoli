@@ -70,7 +70,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     // Write a message to the database
     FirebaseDatabase database = FirebaseDatabase.getInstance();
     DatabaseReference myRef = database.getReference("location");
-    private DatabaseReference mdatabase, mUserDatabase;
+    private DatabaseReference mdatabase, mUserDatabase,mUserDatabase2;
 
     public boolean voznja = false,prviPut=true;
     public boolean klikNaInfo = false, uCrveno=false;
@@ -297,66 +297,107 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             sydney3 = new LatLng(message.latitudeStart, message.longitudeStart);
 
             mMarker = mMap.addMarker(new MarkerOptions().position(sydney3)
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_walkicon))
                     .title("Korisnik " + message.id));
 
             mMap.addMarker(new MarkerOptions().position(sydney2)
                     .title("End")
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_endicon)));
 
-            spoji_linije(message.status);
+//            spoji_linije(message.status);
+            if(uloga==1){
+                mMarker.setSnippet("Vrijeme polaska: " + message.time + "\nZašto mene:" + message.razlog + "\nKontakt:" + message.kontakt + "\nStart:" + message.start + "\nEnd:" + message.end);
 
-            mMarker.setSnippet("Vrijeme polaska: " + message.time + "\nZašto mene:" + message.razlog + "\nKontakt:" + message.kontakt + "\nStart:" + message.start + "\nEnd:" + message.end);
-            //String url = getDirectionsUrl(sydney2, sydney3);
-            //DownloadTask downloadTask = new DownloadTask();
-            //downloadTask.execute(url);
+            }else{
+                mMarker.setSnippet("Vrijeme polaska: " + message.time + "\nZašto mene:" + message.razlog + "\nKontakt:" + message.kontakt + "\nStart:" + message.start + "\nEnd:" + message.end);
+        }
+            String url = getDirectionsUrl(sydney2, sydney3);
+            DownloadTask downloadTask = new DownloadTask();
+            downloadTask.execute(url);
         }
     }
     public void preuzmi_i_crtaj_voznje(){
         mUserDatabase = FirebaseDatabase.getInstance().getReference().child("location");
+        mUserDatabase2 = FirebaseDatabase.getInstance().getReference().child("drives");
         mMap.clear();
         messageList.clear();
         setTitle(getString(R.string.prihvati_voznju_label));
         Log.e(TAG, "Preuzmi voznje");
-        mUserDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                for(DataSnapshot child : dataSnapshot.getChildren() ){
-                    Message message = child.getValue(Message.class);
-                    Log.e(TAG, "Dodan: " + message.id);
-                    messageList.add(message);
+        int iter=0;
+            mUserDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    for(DataSnapshot child : dataSnapshot.getChildren() ){
+                        Message message = child.getValue(Message.class);
+                        Log.e(TAG, "Dodan: " + message.id);
+                        messageList.add(message);
 
-                    sydney2 = new LatLng(message.latitudeEnd, message.longitudeEnd);
-                    sydney3 = new LatLng(message.latitudeStart, message.longitudeStart);
+                        sydney2 = new LatLng(message.latitudeEnd, message.longitudeEnd);
+                        sydney3 = new LatLng(message.latitudeStart, message.longitudeStart);
 
-                    mMarker = mMap.addMarker(new MarkerOptions().position(sydney3)
-                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
-                            .title("Korisnik " + message.id));
+                        mMarker = mMap.addMarker(new MarkerOptions().position(sydney3)
+                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_walkicon))
+                                .title("Korisnik " + message.id));
 
-                    mMap.addMarker(new MarkerOptions().position(sydney2)
-                            .title("End")
-                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_endicon)));
+                        mMap.addMarker(new MarkerOptions().position(sydney2)
+                                .title("End")
+                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_endicon)));
 
-                    spoji_linije(message.status);
-                    mMarker.setSnippet("Vrijeme polaska: " + message.time + "\nZašto mene:" + message.razlog + "\nKontakt:" + message.kontakt + "\nStart:" + message.start + "\nEnd:" + message.end);
-                    //String url = getDirectionsUrl(sydney2, sydney3);
-                    //DownloadTask downloadTask = new DownloadTask();
-                    //downloadTask.execute(url);
-                    Log.e(TAG, "velicina liste:" + messageList.size());
+                        spoji_linije(message.status);
+                        mMarker.setSnippet("Vrijeme polaska: " + message.time + "\nZašto mene:" + message.razlog + "\nKontakt:" + message.kontakt + "\nStart:" + message.start + "\nEnd:" + message.end);
+                        //String url = getDirectionsUrl(sydney2, sydney3);
+                        //DownloadTask downloadTask = new DownloadTask();
+                        //downloadTask.execute(url);
+                        Log.e(TAG, "velicina liste:" + messageList.size());
+                    }
                 }
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Toast.makeText(MapsActivity.this, "Error connecting to Database", Toast.LENGTH_SHORT).show();
-            }
-        });
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    Toast.makeText(MapsActivity.this, "Error connecting to Database", Toast.LENGTH_SHORT).show();
+                }
+            });
+
+            mUserDatabase2.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    for(DataSnapshot child : dataSnapshot.getChildren() ){
+                        Message message = child.getValue(Message.class);
+                        Log.e(TAG, "Dodan: " + message.id);
+                        messageList.add(message);
+
+                        sydney2 = new LatLng(message.latitudeEnd, message.longitudeEnd);
+                        sydney3 = new LatLng(message.latitudeStart, message.longitudeStart);
+
+                        mMarker = mMap.addMarker(new MarkerOptions().position(sydney3)
+                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_car))
+                                .title("Korisnik " + message.id));
+
+                        mMap.addMarker(new MarkerOptions().position(sydney2)
+                                .title("End")
+                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_endicon)));
+
+                        spoji_linije(message.status);
+                        mMarker.setSnippet("Vrijeme polaska: " + message.time + "\nZašto mene:" + message.razlog + "\nKontakt:" + message.kontakt + "\nStart:" + message.start + "\nEnd:" + message.end);
+                        //String url = getDirectionsUrl(sydney2, sydney3);
+                        //DownloadTask downloadTask = new DownloadTask();
+                        //downloadTask.execute(url);
+                        Log.e(TAG, "velicina liste:" + messageList.size());
+                    }
+                }
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    Toast.makeText(MapsActivity.this, "Error connecting to Database", Toast.LENGTH_SHORT).show();
+                }
+            });
+
+
         //camera
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney, 12.0f));
     }
 
     private void spoji_linije(int status){
         if(status==2){
-            uCrveno=true;
+//            uCrveno=true;
             Polyline line = mMap.addPolyline(new PolylineOptions()
                     .add(sydney2,sydney3)
                     .width(5)
@@ -854,7 +895,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             ArrayList<LatLng> points = new ArrayList<LatLng>();;
             PolylineOptions lineOptions = new PolylineOptions();;
             lineOptions.width(2);
-            if(!uCrveno){
+            if(uCrveno){
                 lineOptions.color(Color.RED);
             }else{
                 lineOptions.color(Color.GREEN);

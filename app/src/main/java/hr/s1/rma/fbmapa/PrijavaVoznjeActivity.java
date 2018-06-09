@@ -146,12 +146,13 @@ public class PrijavaVoznjeActivity extends AppCompatActivity {
         if(username == null){
             Toast.makeText(this, "You are not signed in", Toast.LENGTH_SHORT).show();
         }else{
+            if(uloga==1){
             Message message = new Message(username, startLon, startLat, endLon, endLat, 1,
                                           username, time, kontakt, razlog, start, end);
             Map<String, Object> messageValues = message.toMap();
             Map<String, Object> childUpdates = new HashMap<>();
             childUpdates.put(uid, messageValues);
-            if(uloga==1){
+
                 myRef.updateChildren(childUpdates).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
@@ -165,6 +166,11 @@ public class PrijavaVoznjeActivity extends AppCompatActivity {
                     }
                 });
             }else{
+                Message message = new Message(username, startLon, startLat, endLon, endLat, 3,
+                        username, time, kontakt, razlog, start, end);
+                Map<String, Object> messageValues = message.toMap();
+                Map<String, Object> childUpdates = new HashMap<>();
+                childUpdates.put(uid, messageValues);
                 myCarRef.updateChildren(childUpdates).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
