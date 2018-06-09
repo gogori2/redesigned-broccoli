@@ -8,4 +8,34 @@
 /build
 /captures
 .externalNativeBuild
+
+#ja mislim
 /gradle.properties
+gradle.properties
+.idea/assetWizardSettings.xml
+.idea/caches/build_file_checksums.ser
+
+
+## Java class files
+*.class
+
+##built application files
+#*.apk
+#*.ap_
+## files for the dex VM
+#*.dex
+
+
+
+## generated files
+#bin/
+#gen/
+
+## Windows thumbnail db
+#Thumbs.db
+
+#.navigation
+#output.json 
+
+##NDK
+#obj/
