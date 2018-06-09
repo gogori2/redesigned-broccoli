@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.telephony.PhoneNumberUtils;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -31,6 +32,7 @@ import hr.s1.rma.fbmapa.ExecutorValueEventListener;
 
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public class PrijavaVoznjeActivity extends AppCompatActivity {
@@ -53,6 +55,9 @@ public class PrijavaVoznjeActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_prijava_voznje);
         uid = currentUser.getUid();
+
+        //TODO: get currentUsers Contact iz baze / Shared Pref. ? mkontakt.setText(saved_number) flagNumber=true ako ima
+
         mtime = (TextInputEditText ) findViewById(R.id.time);
         mkontakt = (TextInputEditText )findViewById(R.id.kontakt);
         mrazlog = (TextInputEditText ) findViewById(R.id.razlog);
@@ -84,7 +89,17 @@ public class PrijavaVoznjeActivity extends AppCompatActivity {
             public void onClick(View v) {
                 String time = mtime.getText().toString();
                 String kontakt = mkontakt.getText().toString();
+
+
+                Log.e(TAG, Locale.getDefault().getCountry()); // GB?
+                kontakt = PhoneNumberUtils.formatNumber(kontakt, Locale.getDefault().getCountry()); // u nekim slučajevima se zapisalo formatirano npr. 3859452312 -> 385 945 2312
                 String razlog = mrazlog.getText().toString();
+/*
+                PhoneNumberUtil pnu =PhoneNumberUtil.getInstance();
+                Phonenumber.Phonenumber pn = pnu.parse(kontakt,"CRO");
+*/
+
+//                TODO: if (!flagNumber) dialog zelite li spremiti kontakt? ako da, do in background? sprema u firebase database pod current Users/contatct
 
                 if (!TextUtils.isEmpty(time) && !TextUtils.isEmpty(kontakt) && !TextUtils.isEmpty(razlog)){
                     NadiChosenAsink asik = new NadiChosenAsink(time,kontakt,razlog);
@@ -92,7 +107,12 @@ public class PrijavaVoznjeActivity extends AppCompatActivity {
                 }else{
                     Toast.makeText(PrijavaVoznjeActivity.this, "Something is missing", Toast.LENGTH_SHORT).show();
                 }
+
+
             }
+
+
+
         });
         mcancel_button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -130,6 +150,9 @@ public class PrijavaVoznjeActivity extends AppCompatActivity {
     }
 
     public void salji_moju_voznju(final String time, final String kontakt, final String razlog){
+
+        //TODO : zasto je vozac isti ko username?!
+
         Intent intent = getIntent();
         Bundle extras = intent.getExtras();
         final Double startLon = extras.getDouble("mS_lon");

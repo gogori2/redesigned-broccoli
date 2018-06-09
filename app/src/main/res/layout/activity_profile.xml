@@ -119,15 +119,10 @@
     </LinearLayout>
 
     <ListView
-        android:id="@+id/listView"
+
+        android:id="@+id/rides_profile"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:divider="@color/separator"
-        android:dividerHeight="3dp"
-        android:drawSelectorOnTop="true"
-        android:footerDividersEnabled="false"
-        android:scrollbarStyle="outsideOverlay" />
-<!--        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"-->
+        android:layout_height="match_parent" />
+
+
 </LinearLayout>
