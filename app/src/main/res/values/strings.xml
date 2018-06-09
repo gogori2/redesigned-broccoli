@@ -14,4 +14,5 @@
     <string name="welcome_opis">Vozač ili putnik, nije važno </string>
     <string name="reg_button_natpis">Izradi račun</string>
     <string name="zasto_text_button"><u>Zašto da se registriram?</u></string>
+    <string name="prihvati_voznju_label">Povezi nekog</string>
 </resources>

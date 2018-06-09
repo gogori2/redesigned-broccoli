@@ -34,10 +34,10 @@
                                   <option name="values">
                                     <map>
                                       <entry key="assetType" value="IMAGE" />
-                                      <entry key="imageAsset" value="C:\Users\G0G0\Desktop\rma-apps\driver_icon.png" />
-                                      <entry key="outputName" value="ic_bus2" />
+                                      <entry key="imageAsset" value="C:\Users\G0G0\Desktop\rma-apps\car_icon.png" />
+                                      <entry key="outputName" value="ic_car" />
                                       <entry key="theme" value="CUSTOM" />
-                                      <entry key="themeColor" value="e5d03a" />
+                                      <entry key="themeColor" value="010002" />
                                     </map>
                                   </option>
                                 </PersistentState>

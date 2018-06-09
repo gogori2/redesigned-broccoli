@@ -44,8 +44,10 @@ public class PrijavaVoznjeActivity extends AppCompatActivity {
     private ProgressDialog prijavaProgress;
     private static final String TAG = "*";
     private String uid;
+    private Integer uloga;
     FirebaseDatabase database = FirebaseDatabase.getInstance();
     DatabaseReference myRef = database.getReference("location");
+    DatabaseReference myCarRef = database.getReference("drives");
     FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,7 +68,7 @@ public class PrijavaVoznjeActivity extends AppCompatActivity {
         Bundle extras = intent.getExtras();
         final String start = extras.getString("start");
         final String end = extras.getString("end");
-
+        uloga = extras.getInt("uloga");
         mStart.setText(start);
         mEnd.setText(end);
         mrazlog.setOnEditorActionListener(new TextInputEditText.OnEditorActionListener() {
@@ -149,19 +151,33 @@ public class PrijavaVoznjeActivity extends AppCompatActivity {
             Map<String, Object> messageValues = message.toMap();
             Map<String, Object> childUpdates = new HashMap<>();
             childUpdates.put(uid, messageValues);
-            myRef.updateChildren(childUpdates).addOnCompleteListener(new OnCompleteListener<Void>() {
-                @Override
-                public void onComplete(@NonNull Task<Void> task) {
-                    if (task.isSuccessful()) {
+            if(uloga==1){
+                myRef.updateChildren(childUpdates).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
 //                        prijavaProgress.dismiss();
-                        Toast.makeText(PrijavaVoznjeActivity.this, "Successfully added your route", Toast.LENGTH_SHORT).show();
-                    }else{
+                            Toast.makeText(PrijavaVoznjeActivity.this, "Successfully added your route", Toast.LENGTH_SHORT).show();
+                        }else{
 //                        prijavaProgress.hide();
-                        Toast.makeText(PrijavaVoznjeActivity.this, "Something went wrong, try again", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(PrijavaVoznjeActivity.this, "Something went wrong, try again", Toast.LENGTH_SHORT).show();
+                        }
                     }
-                }
-            });
-
+                });
+            }else{
+                myCarRef.updateChildren(childUpdates).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+//                        prijavaProgress.dismiss();
+                            Toast.makeText(PrijavaVoznjeActivity.this, "Successfully added your route", Toast.LENGTH_SHORT).show();
+                        }else{
+//                        prijavaProgress.hide();
+                            Toast.makeText(PrijavaVoznjeActivity.this, "Something went wrong, try again", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+            }
         }
 //        mMap.clear();
     }

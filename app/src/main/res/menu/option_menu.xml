@@ -1,24 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
     <item android:id="@+id/putnik"
         android:icon="@drawable/ic_walkicon"
         android:title="Putnik"
         app:showAsAction="always" />
+
+    <item android:id="@+id/nudi_voznju"
+        android:icon="@drawable/ic_car"
+        android:title="Ponuditelj vožnje"
+        app:showAsAction="always"/>
+
     <item android:id="@+id/vozac"
         android:icon="@drawable/ic_bus2"
-        android:title="Vozac"
+        android:title="Vozač"
         app:showAsAction="always"/>
 
     <item android:id="@+id/profil"
-        android:title="Profile"
+        android:title="Moj profil"
         app:showAsAction="never"/>
 
     <item android:id="@+id/logout"
-        android:title="Log out"
+        android:title="Odjava"
         app:showAsAction="never"/>
 
     <item android:id="@+id/about"
-        android:title="Help"
+        android:title="Pomoć"
         app:showAsAction="never"/>
 </menu>

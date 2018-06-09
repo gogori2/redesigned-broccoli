@@ -83,7 +83,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     static LatLng mojStart = new LatLng(45.340692, 14.407214);
     static LatLng mojEnd = new LatLng(45.340737, 14.408180);
     static LatLng chosenOne = new LatLng(0, 0);
-    public int j = 0, i = 0;
+    public int j = 0, i = 0, uloga = 0;
     Button refresh, prijavi, obrisi;
     Marker mMarker;
     static double lats, lons, late, lone, mojStartLat, mojStartLon, mojEndLat, mojEndLon;
@@ -131,7 +131,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 preuzmi_i_crtaj_voznje();
             }
         }
-
     }
     private void sendToWelcomePage() {
         Log.e(TAG, "Send to welcome page");
@@ -154,6 +153,28 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         Button prijavi = findViewById(R.id.prijavi);
         Button obrisi = findViewById(R.id.obrisi);
         switch (item.getItemId()) {
+            case R.id.putnik:
+                voznja=false;
+                prijavi.setEnabled(true);obrisi.setEnabled(true);
+                prijavi.setText(this.getResources().getString(R.string.zatrazi_voznju));
+                obrisi.setText(this.getResources().getString(R.string.obrisi_voznju));
+                refresh.setVisibility(View.GONE);
+                aStart.setVisibility(View.VISIBLE);
+                aEnd.setVisibility(View.VISIBLE);
+                uloga = 1;
+                moja_voznja(uloga);
+                return true;
+            case R.id.nudi_voznju:
+                voznja=false;
+                prijavi.setEnabled(true);obrisi.setEnabled(true);
+                prijavi.setText(this.getResources().getString(R.string.zatrazi_voznju));
+                obrisi.setText(this.getResources().getString(R.string.obrisi_voznju));
+                refresh.setVisibility(View.GONE);
+                aStart.setVisibility(View.VISIBLE);
+                aEnd.setVisibility(View.VISIBLE);
+                uloga=2;
+                moja_voznja(uloga);
+                return true;
             case R.id.vozac:
                 voznja = true;
                 //pokazi refresh butt
@@ -169,16 +190,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }else{
                     nacrtaj_voznje();
                 }
-                return true;
-            case R.id.putnik:
-                voznja=false;
-                prijavi.setEnabled(true);obrisi.setEnabled(true);
-                prijavi.setText(this.getResources().getString(R.string.zatrazi_voznju));
-                obrisi.setText(this.getResources().getString(R.string.obrisi_voznju));
-                refresh.setVisibility(View.GONE);
-                aStart.setVisibility(View.VISIBLE);
-                aEnd.setVisibility(View.VISIBLE);
-                moja_voznja();
                 return true;
             case R.id.logout:
                 FirebaseAuth.getInstance().signOut();
@@ -197,9 +208,17 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 return super.onOptionsItemSelected(item);
         }
     }
-    public void moja_voznja() {
+
+    public void moja_voznja(int uloga) {
         mMap.clear();
-        Log.e(TAG, "moja voznja");
+        if(uloga==1){
+            setTitle("Zatraži vožnju");
+            Log.e(TAG, "moja voznja");
+        }else {
+            setTitle("Ponudi vožnju");
+            Log.e(TAG, "ponudi voznju");
+        }
+
         //da ne rusi prazan string
         aStart = findViewById(R.id.textStart);
         aEnd = findViewById(R.id.textEnd);
@@ -207,12 +226,21 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             aStart.setText("Start");
             aEnd.setText("End");
         }
+        final Marker markStart2;
+        if(uloga==1){
+            markStart2 = mMap.addMarker(new MarkerOptions()
+                    .position(mojStart)
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
+                    .draggable(true)
+                    .title("Start"));
+        }else {
+            markStart2 = mMap.addMarker(new MarkerOptions()
+                    .position(mojStart)
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_car))
+                    .draggable(true)
+                    .title("Start"));
+        }
 
-        final Marker markStart2 = mMap.addMarker(new MarkerOptions()
-                .position(mojStart)
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
-                .draggable(true)
-                .title("Start"));
         final Marker markEnd2 = mMap.addMarker(new MarkerOptions()
                 .position(mojEnd)
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_endicon))
@@ -259,6 +287,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
     public void nacrtaj_voznje(){
         mMap.clear();
+        setTitle(getString(R.string.prihvati_voznju_label));
         Log.e(TAG, "velicina liste:" + messageList.size());
         for(int i=0; i<messageList.size();i++){
 
@@ -287,6 +316,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mUserDatabase = FirebaseDatabase.getInstance().getReference().child("location");
         mMap.clear();
         messageList.clear();
+        setTitle(getString(R.string.prihvati_voznju_label));
         Log.e(TAG, "Preuzmi voznje");
         mUserDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -496,6 +526,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     prijava.putExtra("mE_lon", mojEndLon);
                     prijava.putExtra("mE_lat", mojEndLat);
                     prijava.putExtra("username", username);
+                    prijava.putExtra("uloga", uloga);
 
                     prijavaProgress.setTitle("Sending in");
                     prijavaProgress.setMessage("Please wait while we send your data");
@@ -617,7 +648,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
         //ako se brzo klikne izmedu vozaca i putnika, iscrtaju se rute putnika (sto ne zelimo)
-        moja_voznja();
+        moja_voznja(1);
     }
 
     private String getCompleteAddressString(double LATITUDE, double LONGITUDE) {
