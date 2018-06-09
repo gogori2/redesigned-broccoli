@@ -93,11 +93,6 @@ public class RegisterActivity extends AppCompatActivity {
                             mRegProgress.dismiss();
                             FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
                             String uid = currentUser.getUid();
-                            //spremi login u sharedpref da moze iz logina procitati
-                            /*SharedPreferences pref = getApplicationContext().getSharedPreferences("MyPref", MODE_PRIVATE);
-                            SharedPreferences.Editor editor = pref.edit();
-                            editor.putString("username",username);  // Saving string
-                            editor.apply(); // commit changes*/
                             String deviceToken = FirebaseInstanceId.getInstance().getToken();
                             mdatabase = FirebaseDatabase.getInstance().getReference().child("Users").child(uid);
                             //prvo pobrisi a onda spremi u shared pref username

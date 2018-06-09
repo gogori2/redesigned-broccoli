@@ -35,7 +35,8 @@
 
         <activity
             android:name=".MapsActivity"
-            android:label="@string/title_activity_maps">
+            android:label="@string/title_activity_maps"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -54,12 +55,24 @@
             </intent-filter>
         </service>
 
-        <activity android:name=".WelcomeActivity" />
-        <activity android:name=".RegisterActivity" />
-        <activity android:name=".LoginActivity" />
-        <activity android:name=".ProfileActivity" />
-        <activity android:name=".PrijavaVoznjeActivity" />
-        <activity android:name=".HelpActivity"></activity>
+        <activity android:name=".WelcomeActivity"
+            android:screenOrientation="portrait"
+            />
+        <activity android:name=".RegisterActivity"
+            android:screenOrientation="portrait"
+            />
+        <activity android:name=".LoginActivity"
+            android:screenOrientation="portrait"
+            />
+        <activity android:name=".ProfileActivity"
+            android:screenOrientation="portrait"
+            />
+        <activity android:name=".PrijavaVoznjeActivity"
+            android:screenOrientation="portrait"
+            />
+        <activity android:name=".HelpActivity"
+            android:screenOrientation="portrait"
+            />
     </application>
 
 </manifest>

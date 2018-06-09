@@ -37,6 +37,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
@@ -71,7 +72,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     DatabaseReference myRef = database.getReference("location");
     private DatabaseReference mdatabase, mUserDatabase;
 
-    public boolean voznja = false;
+    public boolean voznja = false,prviPut=true;
     public boolean klikNaInfo = false, uCrveno=false;
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
     static LatLng sydney = new LatLng(45.340692, 14.407214);
@@ -89,6 +90,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private GoogleMap mMap;
     private static final String TAG = "*";
     private ArrayList<Message> messageList = new ArrayList<Message>();
+    private ArrayList<Marker> mMarkerArray = new ArrayList<Marker>();
     private FirebaseAuth mAuth;
     private String username, uid;
     private TextView aStart,aEnd;
@@ -122,9 +124,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onResume();
         // put your code here...
         //check_login_status();
-        if(voznja){
-            prikazi_voznje();
+        if(uid==null){
+            sendToWelcomePage();
+        }else{
+            if(voznja){
+                preuzmi_i_crtaj_voznje();
+            }
         }
+
     }
     private void sendToWelcomePage() {
         Log.e(TAG, "Send to welcome page");
@@ -151,10 +158,17 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 voznja = true;
                 //pokazi refresh butt
                 refresh.setVisibility(View.VISIBLE);
+                aStart.setVisibility(View.GONE);
+                aEnd.setVisibility(View.GONE);
                 prijavi.setEnabled(false); obrisi.setEnabled(false);
                 prijavi.setText("Prihvati vožnju");
                 obrisi.setText("Otkaži vožnju");
-                prikazi_voznje();
+                if(prviPut){
+                    preuzmi_i_crtaj_voznje();
+                    prviPut=false;
+                }else{
+                    nacrtaj_voznje();
+                }
                 return true;
             case R.id.putnik:
                 voznja=false;
@@ -162,6 +176,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 prijavi.setText(this.getResources().getString(R.string.zatrazi_voznju));
                 obrisi.setText(this.getResources().getString(R.string.obrisi_voznju));
                 refresh.setVisibility(View.GONE);
+                aStart.setVisibility(View.VISIBLE);
+                aEnd.setVisibility(View.VISIBLE);
                 moja_voznja();
                 return true;
             case R.id.logout:
@@ -242,24 +258,44 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
     }
     public void nacrtaj_voznje(){
+        mMap.clear();
         Log.e(TAG, "velicina liste:" + messageList.size());
         for(int i=0; i<messageList.size();i++){
-            messageList.toArray();
+
+            Message message;
+            message = messageList.get(i);
+            sydney2 = new LatLng(message.latitudeEnd, message.longitudeEnd);
+            sydney3 = new LatLng(message.latitudeStart, message.longitudeStart);
+
+            mMarker = mMap.addMarker(new MarkerOptions().position(sydney3)
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
+                    .title("Korisnik " + message.id));
+
+            mMap.addMarker(new MarkerOptions().position(sydney2)
+                    .title("End")
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_endicon)));
+
+            spoji_linije(message.status);
+
+            mMarker.setSnippet("Vrijeme polaska: " + message.time + "\nZašto mene:" + message.razlog + "\nKontakt:" + message.kontakt + "\nStart:" + message.start + "\nEnd:" + message.end);
+            //String url = getDirectionsUrl(sydney2, sydney3);
+            //DownloadTask downloadTask = new DownloadTask();
+            //downloadTask.execute(url);
         }
     }
-    public void prikazi_voznje(){
+    public void preuzmi_i_crtaj_voznje(){
         mUserDatabase = FirebaseDatabase.getInstance().getReference().child("location");
         mMap.clear();
-        Log.e(TAG, "prikazi voznje");
+        messageList.clear();
+        Log.e(TAG, "Preuzmi voznje");
         mUserDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for(DataSnapshot child : dataSnapshot.getChildren() ){
                     Message message = child.getValue(Message.class);
-                    Log.e(TAG, "onChildAdded:" + message.latitudeEnd);
-                    Log.e(TAG, "onChildAdded:" + message.longitudeEnd);
-
+                    Log.e(TAG, "Dodan: " + message.id);
                     messageList.add(message);
+
                     sydney2 = new LatLng(message.latitudeEnd, message.longitudeEnd);
                     sydney3 = new LatLng(message.latitudeStart, message.longitudeStart);
 
@@ -271,24 +307,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                             .title("End")
                             .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_endicon)));
 
-                    if(message.status==2){
-                        uCrveno=true;
-                        Polyline line = mMap.addPolyline(new PolylineOptions()
-                                .add(sydney2,sydney3)
-                                .width(5)
-                                .color(Color.RED));
-                    }else{
-                        Polyline line = mMap.addPolyline(new PolylineOptions()
-                                .add(sydney2,sydney3)
-                                .width(5)
-                                .color(Color.GREEN));
-                    }
+                    spoji_linije(message.status);
                     mMarker.setSnippet("Vrijeme polaska: " + message.time + "\nZašto mene:" + message.razlog + "\nKontakt:" + message.kontakt + "\nStart:" + message.start + "\nEnd:" + message.end);
                     //String url = getDirectionsUrl(sydney2, sydney3);
                     //DownloadTask downloadTask = new DownloadTask();
                     //downloadTask.execute(url);
                     Log.e(TAG, "velicina liste:" + messageList.size());
-
                 }
             }
             @Override
@@ -300,6 +324,20 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney, 12.0f));
     }
 
+    private void spoji_linije(int status){
+        if(status==2){
+            uCrveno=true;
+            Polyline line = mMap.addPolyline(new PolylineOptions()
+                    .add(sydney2,sydney3)
+                    .width(5)
+                    .color(Color.RED));
+        }else{
+            Polyline line = mMap.addPolyline(new PolylineOptions()
+                    .add(sydney2,sydney3)
+                    .width(5)
+                    .color(Color.GREEN));
+        }
+    }
     public void otkazi_prihvacenu_voznju(){
         myRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -421,12 +459,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (requestCode == 1) {
             if(resultCode == RESULT_OK){
                 Log.e(TAG, "RESULT OK");
-                //prikazi_voznje();
+                //preuzmi_i_nacrtaj_voznje
             }
             if (resultCode == RESULT_CANCELED) {
                 //Write your code if there's no result
                 Log.e(TAG, "RESULT CANCELED");
-                //prikazi_voznje();
+                //preuzmi_i_nacrtaj_voznje
             }
         }
     }//onActivityResult
@@ -494,7 +532,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         refresh.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                prikazi_voznje();
+                preuzmi_i_crtaj_voznje();
             }
         });
         //googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
@@ -534,9 +572,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         klikNaInfo=true;
                         prijavi.setEnabled(true);
                         obrisi.setEnabled(true);
-                        Log.e(TAG, "odabran je \n" + mark.getPosition().latitude);
-                        // TODO Auto-generated method stub
-                        // Prilagodjeni 'info window' za marker (omogucava snippet teksta kroz vise redaka)
                     }else{
                         klikNaInfo=false;
                     }

@@ -108,7 +108,7 @@ public class LoginActivity extends AppCompatActivity {
                                     Log.w(TAG, "Failed to read value.", error.toException());
                                 }
                             });
-                        // ovdje se nista ne izvrsava
+                        // ovdje se nista ne izvrsava !!!!! IPAK SE IZVRŠAVA ALI PRIJE SVEGA
                             Log.e(TAG, "signInWithEmail:NIKAD");
                         } else {
                             LoginProgress.hide();

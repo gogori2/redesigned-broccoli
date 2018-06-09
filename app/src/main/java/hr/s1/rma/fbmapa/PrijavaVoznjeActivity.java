@@ -87,18 +87,8 @@ public class PrijavaVoznjeActivity extends AppCompatActivity {
                 String razlog = mrazlog.getText().toString();
 
                 if (!TextUtils.isEmpty(time) && !TextUtils.isEmpty(kontakt) && !TextUtils.isEmpty(razlog)){
-//                    prijavaProgress.setTitle("Sending in");
-//                    prijavaProgress.setMessage("Please wait while we send your data");
-//                    prijavaProgress.show();
-//                    prijavaProgress.setCanceledOnTouchOutside(false);
-                    //nadi_chosen(time,kontakt,razlog);
                     NadiChosenAsink asik = new NadiChosenAsink(time,kontakt,razlog);
-
                     asik.execute();
-//                    Toast.makeText(PrijavaVoznjeActivity.this, "Voznja prijavljena", Toast.LENGTH_LONG).show();
-//                    Intent returnIntent = new Intent();
-//                    setResult(RESULT_OK, returnIntent);
-//                    finish();
                 }else{
                     Toast.makeText(PrijavaVoznjeActivity.this, "Something is missing", Toast.LENGTH_SHORT).show();
                 }
@@ -128,10 +118,7 @@ public class PrijavaVoznjeActivity extends AppCompatActivity {
         }
         @Override
         protected void onProgressUpdate(String... progress) {
-//            prijavaProgress.setTitle("Logging in");
-//            prijavaProgress.setMessage("Please wait while we check your credentials");
-//            prijavaProgress.setCanceledOnTouchOutside(false);
-//            prijavaProgress.show();
+
         }
         @Override
         protected void onPostExecute(String result) {
@@ -178,51 +165,4 @@ public class PrijavaVoznjeActivity extends AppCompatActivity {
         }
 //        mMap.clear();
     }
-/*
-    public void nadi_chosen(final String time, final String kontakt, final String razlog){
-//        if(Looper.myLooper() == Looper.getMainLooper()){Log.e(TAG, "Ovo je UI thread"); }
-        Intent intent = getIntent();
-        Bundle extras = intent.getExtras();
-        final Double chosen_longitude = extras.getDouble("chosen_lon");
-        final Double chosen_latitude = extras.getDouble("chosen_lat");
-        final String user = extras.getString("username");
-        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                for(DataSnapshot child : dataSnapshot.getChildren() ){
-                    // Do magic here
-                    String mUid = child.getKey();
-                    Log.e(TAG, "Ovo je uid:" +  mUid);
-                    Message message2 = child.getValue(Message.class);
-                    Log.e(TAG, "Ovdje sam u nadi chosen Prijava Activity");
-                    if(chosen_latitude == message2.latitudeStart && chosen_longitude == message2.longitudeStart){
-                        Log.e(TAG, "Mijenjam status: "+ message2.id + " u " + message2.status);
-                        if (message2.status == 2){
-                            Toast.makeText(PrijavaVoznjeActivity.this, "This drive is already taken", Toast.LENGTH_LONG).show();
-                        }else{
-                            Message message3 = new Message(message2.id, message2.longitudeStart, message2.latitudeStart,
-                                    message2.longitudeEnd, message2.latitudeEnd, 2, user, time, kontakt, razlog);
-                            Map<String, Object> messageValues = message3.toMap();
-                            Map<String, Object> childUpdates = new HashMap<>();
-                            Log.e(TAG, "Ovdje sam, status: " + message3.status);
-                            childUpdates.put(mUid, messageValues);
-                            myRef.updateChildren(childUpdates);
-                            //uCrveno = true;
-                            // Izgradnja url-a za Directions API:
-                            //                        String url = getDirectionsUrl(sydney4, sydney5);
-                            //                        // Dohvat json podataka s Google Directions API-a:
-                            //                        DownloadTask downloadTask = new DownloadTask();
-                            //                        downloadTask.execute(url);
-                        }
-                    }else{
-                        //bo
-                    }
-                }
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                // Toast.makeText(this, "Voznja prijavljena", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }*/
 }
