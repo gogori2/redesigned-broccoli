@@ -286,7 +286,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
     }
     public void nacrtaj_voznje(){
-        mMap.clear();
+         mMap.clear();
         setTitle(getString(R.string.prihvati_voznju_label));
         Log.e(TAG, "velicina liste:" + messageList.size());
         for(int i=0; i<messageList.size();i++){
