@@ -11,26 +11,45 @@ admin.initializeApp(functions.config().firebase);
  response.send("Hello from Firebase!");
   console.log("ciaooo");
 });*/
-exports.sendNotification = functions.database.ref('/location/{uid}/status').onUpdate((change,context)=> {
-	const uid = context.params.uid;
+
 	//const status = context.params.status;
 	//console.log ("the user status is:", status);
 	//const stat = event.data.val().status;
-	console.log ('doslo je do promjene', uid);
 
+exports.sendNotification = functions.database.ref('/location/{uid}/status').onUpdate((change,context)=> {
+	const status = change.after.val();
+	const uid = context.params.uid;
+//	console.log ('doslo je do promjene', uid);
+	console.log ('doslo je do promjene', status);
 	const deviceToken = admin.database().ref(`/Users/${uid}/deviceToken`).once('value');
-	return deviceToken.then(result =>{
+    if(status===2){
+						return deviceToken.then(result =>{
+							const token_id = result.val();
+								const payload = {
+									notification:{
+										title: "Prihvacena voznja",
+										body: "klik za detalje"
+									}
+								};
+							return admin.messaging().sendToDevice(token_id,payload).then (response => {
+								return console.log('this is notif feature');
+					});
 
-		const token_id = result.val();
-		const payload ={
-			notification:{
-				title: "Prihvacena voznja",
-				body: "klik za detalje"
-			}
-		};
-		return admin.messaging().sendToDevice(token_id,payload).then (response => {
-			return console.log('this is notif feature');
-		});
+				});
+	}
+	if(status===1){
+						return deviceToken.then(result =>{
+							const token_id = result.val();
+								const payload = {
+									notification:{
+										title: "Odbijena voznja",
+										body: "klik za detalje"
+									}
+								};
+							return admin.messaging().sendToDevice(token_id,payload).then (response => {
+								return console.log('this is notif feature');
+					});
 
-	});
+				});
+	}
 });
