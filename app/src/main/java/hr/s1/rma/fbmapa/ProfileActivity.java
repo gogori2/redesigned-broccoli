@@ -3,10 +3,8 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.Build;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,51 +14,105 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.graphics.BitmapFactory;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FileDownloadTask;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
-import com.bumptech.glide.Glide;
-
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.concurrent.ExecutionException;
 
 public class ProfileActivity extends AppCompatActivity {
 
     private static final String TAG = "*";
 
+    //Firebase auth and Database
     private FirebaseAuth mAuth;
     private FirebaseDatabase mDatabase;
-
     private DatabaseReference mUserDatabase, mLocation;
+    private String current_user_Id;
 
-    private String username;
-
-    private TextView usernameTV,emailTV;
+    // Profile picture
     private ImageView profileIV;
-    private ListView  ridesLV;
+    private StorageReference mStorageRef;
+    String imagePath = "";
+    File localFile = null;
 
+    //profile name and contact
+    private TextView usernameTV,emailTV;
+
+    // List of rides
+    private ListView  ridesLV;
     private ArrayList<String>arrayList = new ArrayList<>();
     private ArrayAdapter<String>adapter;
 
-
-    private String current_user_Id;
-    byte[] default_image;
-    int default_image_length=0;
-
-
-    String imagePath = "";
 
     @Override
     protected void onStart() {
         super.onStart();
     }
 
+    protected void showProfilePicture(){
+
+        mStorageRef = FirebaseStorage.getInstance().getReference().child("images/users/"+current_user_Id+".jpg");
+        Log.e(TAG,"mStorage Ref"+mStorageRef);
+
+        try {
+            localFile = File.createTempFile("images", "jpg");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        mStorageRef.getFile(localFile)
+                .addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                        // Successfully downloaded data to local file
+                        Bitmap b;
+                        try {
+                            b = BitmapFactory.decodeStream(new FileInputStream(localFile));
+                            profileIV.setImageBitmap(b);
+                            Log.e(TAG,"Slikica je pronađena na firebaseu");
+
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                // Handle failed download
+                Log.e(TAG,"Slikica NIJE pronađena na firebaseu");
+                profileIV.setImageResource(R.drawable.search);
+            }
+        });
+
+// set clickable
+        profileIV.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+//                if(checkFilePermissions())
+                Intent i = new Intent(
+                        Intent.ACTION_PICK,
+                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                startActivityForResult(i, 101); // request code 101 (proizvoljno)
+            }
+        });
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -69,7 +121,6 @@ public class ProfileActivity extends AppCompatActivity {
         Log.e(TAG, "pokrenut Profil");
 //        treba dodati toolbar i svasta da bi radila strjelica
 //        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
         if (this.getSupportActionBar() != null) {
             this.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             this.getSupportActionBar().setHomeButtonEnabled(true);
@@ -77,47 +128,36 @@ public class ProfileActivity extends AppCompatActivity {
         }
 
         mAuth = FirebaseAuth.getInstance();
-        mDatabase = FirebaseDatabase.getInstance();
-
         current_user_Id = mAuth.getCurrentUser().getUid();
-        String cuurent_user_email = mAuth.getCurrentUser().getEmail();
-        usernameTV = (TextView)findViewById(R.id.profile_username);
-        //usernameTV.setText() je u onDataChange
-        emailTV = (TextView)findViewById(R.id.email_profile);
-        emailTV.setText(cuurent_user_email);
 
+        mDatabase = FirebaseDatabase.getInstance();
         mUserDatabase = mDatabase.getReference().child("Users");
         mLocation   = mDatabase.getReference().child("location");
 
-        profileIV = findViewById(R.id.image_profile);
-
-        profileIV = findViewById(R.id.image_profile);
-
-        if (default_image_length != 0) {
-            Glide.with(this)
-                    .load(default_image)
-                    .asBitmap()
-                    .into(profileIV);
-        } else {
-            Glide.with(this)
-                    .load(R.drawable.search)
-                    .asBitmap()
-                    .into(profileIV);
-        }
-
-        ridesLV=findViewById(R.id.rides_profile);
-        adapter= new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,arrayList); //!?
-        ridesLV.setAdapter(adapter);
-
-        ridesLV.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        usernameTV = (TextView)findViewById(R.id.profile_username);
+        mUserDatabase.child(current_user_Id).addValueEventListener(new ValueEventListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-                String choosen = (String) ridesLV.getItemAtPosition(position);
-
-
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                String username = dataSnapshot.child("Username").getValue(String.class);
+                Log.e(TAG, "Username u profilu " + username);
+                usernameTV.setText(username);
+            }
+            @Override
+            public void onCancelled(DatabaseError error) {
+                Log.w(TAG, "Failed to read value.", error.toException());
             }
         });
+
+        String current_user_email = mAuth.getCurrentUser().getEmail();
+        emailTV = (TextView)findViewById(R.id.email_profile);
+        emailTV.setText(current_user_email);
+        
+        profileIV = findViewById(R.id.image_profile);
+        showProfilePicture();
+
+        ridesLV=findViewById(R.id.rides_profile);
+        adapter= new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,arrayList); //!? neznam jel radilo bez String
+        ridesLV.setAdapter(adapter);
 
         mLocation.addValueEventListener(new ValueEventListener() {
             @Override
@@ -140,69 +180,17 @@ public class ProfileActivity extends AppCompatActivity {
                 Log.w(TAG, "Failed to read value.", error.toException());
             }
         });
-
-
-/*        mUserDatabase.addValueEventListener(new ValueEventListener() {
+        ridesLV.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                for(DataSnapshot child : dataSnapshot.getChildren() ){
-                    Log.e(TAG, "uid u profilu " + child.getKey());
-                    String uid = child.getKey();
-                    String username = dataSnapshot.child(uid).child("Username").getValue(String.class);
-                    Log.e(TAG, "Username u profilu " + username);
-                }
-            }
-            @Override
-            public void onCancelled(DatabaseError error) {
-                Log.w(TAG, "Failed to read value.", error.toException());
-            }
-        });*/
-
-
-
-
-
-
-
-
-        profileIV.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-//                if(checkFilePermissions())
-
-                    Intent i = new Intent(
-                            Intent.ACTION_PICK,
-                            MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                    startActivityForResult(i, 101); // request code 101 (proizvoljno)
-
-
-
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String choosen = (String) ridesLV.getItemAtPosition(position);
             }
         });
 
-
     }
-
-/*    private boolean checkFilePermissions() {
-
-        if(Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP){
-
-            int permissionCheck = ProfileActivity.this.checkSelfPermission("Manifest.permission.READ_EXTERNAL_STORAGE");
-
-            if (permissionCheck != 0) {
-                this.requestPermissions(new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE}, 1001); //Any number
-                return true;
-            }else return false;
-        }else{
-            Log.d(TAG, "checkBTPermissions: No need to check permissions. SDK version < LOLLIPOP.");
-            return true;
-        }
-    }*/
-
-    // Preuzimanje (odabrane) slike iz galerije i njezino pozicioniranje / prikazivanje
-    // u elementu ImageView:
-    @Override
+// Preuzimanje (odabrane) slike iz galerije i njezino pozicioniranje / prikazivanje
+// u elementu ImageView:
+@Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
@@ -228,26 +216,57 @@ public class ProfileActivity extends AppCompatActivity {
 
             if (!imagePath.equals("")) {
 
-                Glide.with(this).load(imagePath).into(profileIV);
+                localFile =new File(imagePath);
+                Uri uri = Uri.fromFile(localFile);
+                Log.e(TAG, "imagePath "+imagePath);
+                Log.e(TAG,"mStorageRef "+mStorageRef);
+
+                mStorageRef.putFile(uri)
+                        .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                            @Override
+                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                // Get a URL to the uploaded content
+                                StorageReference downloadUrl = taskSnapshot.getStorage();
+                                Log.e(TAG,downloadUrl.getPath());
+
+                                Bitmap b;
+                                try {
+                                    b = BitmapFactory.decodeStream(new FileInputStream(localFile));
+                                    profileIV.setImageBitmap(b);
+
+                                } catch (FileNotFoundException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception exception) {
+                                // Handle unsuccessful uploads
+                                // ...
+                                Log.e(TAG,exception.getMessage());
+                            }
+                        });
+
             }
         }
     }
 
-    // Pomocna metoda za ucitavanje slike u formatu oktetnog niza.
-    // Pozicija slikovne datoteke cuva se u globalnoj varijabli imagePath.
-    // Osigurano je (programski) da poziv ove metode ide isklucivo u slucaju kada imagePath NIJE "".
-    public byte[] generateByteArrayImage()
-            throws ExecutionException, InterruptedException {
-        int width = profileIV.getWidth();
-        int height = profileIV.getHeight();
+/*    private boolean checkFilePermissions() {
 
-        return Glide.with(this).load(this.imagePath)
-                .asBitmap() //najnovija verzija bumptheh glide ne podržava
-                .toBytes(Bitmap.CompressFormat.JPEG, 70)    // proizvoljna razina kompresiranja
-                .centerCrop()
-                .into(width, height)
-                .get();
-    }
+        if(Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP){
+
+            int permissionCheck = ProfileActivity.this.checkSelfPermission("Manifest.permission.READ_EXTERNAL_STORAGE");
+
+            if (permissionCheck != 0) {
+                this.requestPermissions(new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE}, 1001); //Any number
+                return true;
+            }else return false;
+        }else{
+            Log.d(TAG, "checkBTPermissions: No need to check permissions. SDK version < LOLLIPOP.");
+            return true;
+        }
+    }*/
 
     @Override
     public void onBackPressed()

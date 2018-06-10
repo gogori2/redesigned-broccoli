@@ -1,8 +1,4 @@
-
-- odabranu sliku premiti na storage i u sharedpreferences
-- dohvaćati također
 - profilu ispisati kontakt i dodati mogucnost mijenjanja istog
-
 
 - napraviti isti profil za tuđe profile, bez edita slike i kontakta
 - klik na item ListView da ih povedemo?
@@ -11,7 +7,6 @@
 - polje zaupis kontata automatski ispuniti ako postoji broju i shared preferences
 
 - kad se pritisne na kontakt da ponudi poziv?
-
 -dodati da pita za permission Storage da smije dohvatiti sliku!
 
 
