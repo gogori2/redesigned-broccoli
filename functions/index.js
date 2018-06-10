@@ -53,3 +53,41 @@ exports.sendNotification = functions.database.ref('/location/{uid}/status').onUp
 				});
 	}
 });
+
+exports.sendNotificationVozacu = functions.database.ref('/drives/{uid}/status').onUpdate((change,context)=> {
+	const status2 = change.after.val();
+	const uid2 = context.params.uid;
+//	console.log ('doslo je do promjene', uid);
+	console.log ('doslo je do promjene', status2);
+	const deviceToken = admin.database().ref(`/Users/${uid2}/deviceToken`).once('value');
+    if(status2===4){
+						return deviceToken.then(result =>{
+							const token_id = result.val();
+								const payload = {
+									notification:{
+										title: "Imas drustvo",
+										body: "klik za detalje"
+									}
+								};
+							return admin.messaging().sendToDevice(token_id,payload).then (response => {
+								return console.log('this is notif feature');
+					});
+
+				});
+	}
+	if(status2===3){
+						return deviceToken.then(result =>{
+							const token_id = result.val();
+								const payload = {
+									notification:{
+										title: "Nazalost, netko je odbio voznju",
+										body: "klik za detalje"
+									}
+								};
+							return admin.messaging().sendToDevice(token_id,payload).then (response => {
+								return console.log('this is notif feature');
+					});
+
+				});
+	}
+});

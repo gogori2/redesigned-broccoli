@@ -44,7 +44,7 @@ public class RegisterActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
-
+        setTitle("Registracija");
         mAuth = FirebaseAuth.getInstance();
 
         mUsername = (TextInputEditText ) findViewById(R.id.reg_username);
@@ -83,7 +83,12 @@ public class RegisterActivity extends AppCompatActivity {
             }
         });
     }
+    @Override
+    public void finish(){
+        super.finish();
+        overridePendingTransition(R.anim.swipe_in_right, R.anim.swipe_out_left);
 
+    }
     private void register_user(final String username, String email, String password) {
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {

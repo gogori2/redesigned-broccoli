@@ -15,4 +15,6 @@
     <string name="reg_button_natpis">Izradi račun</string>
     <string name="zasto_text_button"><u>Zašto da se registriram?</u></string>
     <string name="prihvati_voznju_label">Povezi nekog</string>
+    <string name="help_text"> This is your string.
+      This is the second line of your string.\n\n  Third line of your string. </string>
 </resources>

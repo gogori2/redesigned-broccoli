@@ -41,6 +41,7 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setTitle("Prijava");
         setContentView(R.layout.activity_login);
 
         mAuth = FirebaseAuth.getInstance();
@@ -78,7 +79,12 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
     }
+    @Override
+    public void finish(){
+        super.finish();
+        overridePendingTransition(R.anim.swipe_in_left, R.anim.swipe_out_right);
 
+    }
     private void login_user(String email, String password) {
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {

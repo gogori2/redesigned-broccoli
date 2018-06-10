@@ -55,24 +55,26 @@
             </intent-filter>
         </service>
 
-        <activity android:name=".WelcomeActivity"
+        <activity
+            android:name=".WelcomeActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".RegisterActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".LoginActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ProfileActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".PrijavaVoznjeActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".HelpActivity"
             android:screenOrientation="portrait"
-            />
-        <activity android:name=".RegisterActivity"
-            android:screenOrientation="portrait"
-            />
-        <activity android:name=".LoginActivity"
-            android:screenOrientation="portrait"
-            />
-        <activity android:name=".ProfileActivity"
-            android:screenOrientation="portrait"
-            />
-        <activity android:name=".PrijavaVoznjeActivity"
-            android:screenOrientation="portrait"
-            />
-        <activity android:name=".HelpActivity"
-            android:screenOrientation="portrait"
-            />
+            android:theme="@style/AppTheme.SliderActivityTheme">
+        </activity>
     </application>
 
 </manifest>

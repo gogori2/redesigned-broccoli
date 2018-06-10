@@ -27,6 +27,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-database:16.0.1'
     implementation 'com.squareup.okhttp3:okhttp:3.0.1'
     implementation "com.google.firebase:firebase-messaging:17.0.0"
+    implementation "com.r0adkll:slidableactivity:2.0.6"
     //dodano zbog snackbara ->
     implementation 'com.android.support:design:27.1.1'
     implementation 'com.android.support.constraint:constraint-layout:1.1.0'

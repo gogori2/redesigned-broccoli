@@ -69,7 +69,9 @@ import java.util.Map;
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
     // Write a message to the database
     FirebaseDatabase database = FirebaseDatabase.getInstance();
+    DatabaseReference myDrives = database.getReference("drives");
     DatabaseReference myRef = database.getReference("location");
+
     private DatabaseReference mdatabase, mUserDatabase,mUserDatabase2;
 
     public boolean voznja = false,prviPut=true;
@@ -296,25 +298,33 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             sydney2 = new LatLng(message.latitudeEnd, message.longitudeEnd);
             sydney3 = new LatLng(message.latitudeStart, message.longitudeStart);
 
-            mMarker = mMap.addMarker(new MarkerOptions().position(sydney3)
-                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_walkicon))
-                    .title("Korisnik " + message.id));
+            if(message.status==3 || message.status==4){
+                mMarker = mMap.addMarker(new MarkerOptions().position(sydney3)
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_car))
+                        .title(message.id));
 
-            mMap.addMarker(new MarkerOptions().position(sydney2)
-                    .title("End")
-                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_endicon)));
-
-//            spoji_linije(message.status);
-            if(uloga==1){
-                mMarker.setSnippet("Vrijeme polaska: " + message.time + "\nZašto mene:" + message.razlog + "\nKontakt:" + message.kontakt + "\nStart:" + message.start + "\nEnd:" + message.end);
-
+                mMap.addMarker(new MarkerOptions().position(sydney2)
+                        .title("End")
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_endicon)));
             }else{
-                mMarker.setSnippet("Vrijeme polaska: " + message.time + "\nZašto mene:" + message.razlog + "\nKontakt:" + message.kontakt + "\nStart:" + message.start + "\nEnd:" + message.end);
+                mMarker = mMap.addMarker(new MarkerOptions().position(sydney3)
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_walkicon))
+                        .title(message.id));
+
+                mMap.addMarker(new MarkerOptions().position(sydney2)
+                        .title("End")
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_endicon)));
+            }
+
+
+            spoji_linije(message.status);
+
+            mMarker.setSnippet("Vrijeme polaska: " + message.time + "\nZašto mene:" + message.razlog + "\nKontakt:" + message.kontakt + "\nStart:" + message.start + "\nEnd:" + message.end);
         }
-            String url = getDirectionsUrl(sydney2, sydney3);
-            DownloadTask downloadTask = new DownloadTask();
-            downloadTask.execute(url);
-        }
+//            String url = getDirectionsUrl(sydney2, sydney3);
+//            DownloadTask downloadTask = new DownloadTask();
+//            downloadTask.execute(url);
+
     }
     public void preuzmi_i_crtaj_voznje(){
         mUserDatabase = FirebaseDatabase.getInstance().getReference().child("location");
@@ -337,7 +347,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                         mMarker = mMap.addMarker(new MarkerOptions().position(sydney3)
                                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_walkicon))
-                                .title("Korisnik " + message.id));
+                                .title(message.id));
 
                         mMap.addMarker(new MarkerOptions().position(sydney2)
                                 .title("End")
@@ -357,7 +367,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
             });
 
-            mUserDatabase2.addListenerForSingleValueEvent(new ValueEventListener() {
+            myDrives.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     for(DataSnapshot child : dataSnapshot.getChildren() ){
@@ -370,7 +380,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                         mMarker = mMap.addMarker(new MarkerOptions().position(sydney3)
                                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_car))
-                                .title("Korisnik " + message.id));
+                                .title(message.id));
 
                         mMap.addMarker(new MarkerOptions().position(sydney2)
                                 .title("End")
@@ -424,7 +434,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                Log.e(TAG, "Ovo je username:" + username);
                                Log.e(TAG, "Ovo je vozac:" +  message2.vozac);
                                Message message3 = new Message(message2.id, message2.longitudeStart, message2.latitudeStart,
-                                       message2.longitudeEnd, message2.latitudeEnd, 1, "ODUSTAO " + message2.vozac,
+                                       message2.longitudeEnd, message2.latitudeEnd, 1, "Odustao " + message2.vozac,
                                        message2.time, message2.kontakt, message2.razlog, message2.start, message2.end);
                                Map<String, Object> messageValues = message3.toMap();
                                Map<String, Object> childUpdates = new HashMap<>();
@@ -444,7 +454,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                childUpdates.put(mUid, messageValues);
                                myRef.updateChildren(childUpdates);
                                Toast.makeText(MapsActivity.this, "Drive canceled", Toast.LENGTH_SHORT).show();
-                           }else if (message2.vozac.equals("ODUSTAO "+username)){
+                           }else if (message2.vozac.equals("Odustao "+username)){
                                Toast.makeText(MapsActivity.this, "You can not cancel what is not cancelable", Toast.LENGTH_SHORT).show();
                            }else{
                                Toast.makeText(MapsActivity.this, "You can not cancel one's drive", Toast.LENGTH_SHORT).show();
@@ -456,56 +466,157 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onCancelled(DatabaseError databaseError) {
             }
         });
-    }
-
-    public void nadi_chosen(){
-        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        myDrives.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                for(DataSnapshot child : dataSnapshot.getChildren() ){
-                    // Do magic here
+            public void onDataChange(DataSnapshot dataSnapshot2) {
+                for(DataSnapshot child : dataSnapshot2.getChildren() ){
                     String mUid = child.getKey();
-                    Log.e(TAG, "Ovo je uid:" +  mUid);
                     Message message2 = child.getValue(Message.class);
-                    Log.e(TAG, "Ovdje sam u nadi chosen");
-                    if(chosenOne.latitude == message2.latitudeStart && chosenOne.longitude == message2.longitudeStart){
-                            Log.e(TAG, "Ovdje sam isto "+ message2.id);
-                            if (message2.status == 2){
-                                    Toast.makeText(MapsActivity.this, "This drive is already taken", Toast.LENGTH_SHORT).show();
-                            }else {
-                                    Message message3 = new Message(message2.id, message2.longitudeStart, message2.latitudeStart,
-                                                                   message2.longitudeEnd, message2.latitudeEnd, 2, username, message2.time,
-                                                                   message2.kontakt, message2.razlog,message2.start, message2.end);
-                                    Map<String, Object> messageValues = message3.toMap();
-                                    Map<String, Object> childUpdates = new HashMap<>();
-                                    Log.e(TAG, "Ovdje sam, status: " + message3.status);
-                                    childUpdates.put(mUid, messageValues);
-                                    myRef.updateChildren(childUpdates);
-                                    sydney4 = new LatLng(message3.latitudeEnd, message3.longitudeEnd);
-                                    sydney5 = new LatLng(message3.latitudeStart, message3.longitudeStart);
-                                    // odabranu zacrveni
-                                    Polyline line = mMap.addPolyline(new PolylineOptions()
-                                            .add(sydney4, sydney5)
-                                            .width(5)
-                                            .color(Color.RED));
-                                    uCrveno = true;
-                                    // Izgradnja url-a za Directions API:
-        //                        String url = getDirectionsUrl(sydney4, sydney5);
-        //                        // Dohvat json podataka s Google Directions API-a:
-        //                        DownloadTask downloadTask = new DownloadTask();
-        //                        downloadTask.execute(url);
-                                Toast.makeText(MapsActivity.this, "Voznja prijavljena", Toast.LENGTH_SHORT).show();
-                        }
-                    }else{
+                    Log.e(TAG, "Ovo je username:" + username);
+                    Log.e(TAG, "Ovo je vozac:" +  message2.vozac);
+                    if(chosenOne.latitude == message2.latitudeStart && chosenOne.longitude==message2.longitudeStart){
+                        //pripaziti da ne bude prazno polje vozac jer takva provjera rusi app
+                        if(message2.vozac.equals(username)){
+                            Log.e(TAG, "Ovo je username:" + username);
+                            Log.e(TAG, "Ovo je vozac:" +  message2.vozac);
+                            Message message3 = new Message(message2.id, message2.longitudeStart, message2.latitudeStart,
+                                    message2.longitudeEnd, message2.latitudeEnd, 3, "Odustao " + message2.vozac,
+                                    message2.time, message2.kontakt, message2.razlog, message2.start, message2.end);
+                            Map<String, Object> messageValues = message3.toMap();
+                            Map<String, Object> childUpdates = new HashMap<>();
 
+                            sydney4 = new LatLng(message3.latitudeEnd, message3.longitudeEnd);
+                            sydney5 = new LatLng(message3.latitudeStart, message3.longitudeStart);
+
+                            uCrveno=false;
+                            //                        String url = getDirectionsUrl(sydney4, sydney5);
+                            //                        // Dohvat json podataka s Google Directions API-a:
+                            //                        DownloadTask downloadTask = new DownloadTask();
+//                             downloadTask.execute(url);
+                            Polyline line = mMap.addPolyline(new PolylineOptions()
+                                    .add(sydney4,sydney5)
+                                    .width(5)
+                                    .color(Color.GREEN));
+                            childUpdates.put(mUid, messageValues);
+                            myDrives.updateChildren(childUpdates);
+                            Toast.makeText(MapsActivity.this, "Drive canceled", Toast.LENGTH_SHORT).show();
+                        }else if (message2.vozac.equals("Odustao "+username)){
+                            Toast.makeText(MapsActivity.this, "You can not cancel what is not cancelable", Toast.LENGTH_SHORT).show();
+                        }else{
+                            Toast.makeText(MapsActivity.this, "You can not cancel one's drive", Toast.LENGTH_SHORT).show();
+                        }
                     }
                 }
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                // Toast.makeText(this, "Voznja prijavljena", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    public void nadi_chosen(){
+            myRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    for(DataSnapshot child : dataSnapshot.getChildren() ){
+                        // Do magic here
+                        String mUid = child.getKey();
+                        //Log.e(TAG, "Ovo je uid:" +  mUid);
+                        Message message2 = child.getValue(Message.class);
+                        Log.e(TAG, "Ovdje sam u nadi chosen");
+                        Log.e(TAG, "lat start: "+ message2.latitudeStart);
+                        if(chosenOne.latitude == message2.latitudeStart && chosenOne.longitude == message2.longitudeStart){
+                            Log.e(TAG, "Ovdje sam isto "+ message2.id);
+                            Log.e(TAG, "lat start: "+ message2.latitudeStart);
+                            if (message2.status == 2){
+                                Toast.makeText(MapsActivity.this, "This drive is already taken", Toast.LENGTH_SHORT).show();
+                            }else {
+                                Message message3 = new Message(message2.id, message2.longitudeStart, message2.latitudeStart,
+                                        message2.longitudeEnd, message2.latitudeEnd, 2, username, message2.time,
+                                        message2.kontakt, message2.razlog,message2.start, message2.end);
+                                Map<String, Object> messageValues = message3.toMap();
+                                Map<String, Object> childUpdates = new HashMap<>();
+                                Log.e(TAG, "Ovdje sam, status: " + message3.status);
+                                childUpdates.put(mUid, messageValues);
+                                myRef.updateChildren(childUpdates);
+                                sydney4 = new LatLng(message3.latitudeEnd, message3.longitudeEnd);
+                                sydney5 = new LatLng(message3.latitudeStart, message3.longitudeStart);
+                                // odabranu zacrveni
+                                Polyline line = mMap.addPolyline(new PolylineOptions()
+                                        .add(sydney4, sydney5)
+                                        .width(5)
+                                        .color(Color.RED));
+                                uCrveno = true;
+                                // Izgradnja url-a za Directions API:
+                                //                        String url = getDirectionsUrl(sydney4, sydney5);
+                                //                        // Dohvat json podataka s Google Directions API-a:
+                                //                        DownloadTask downloadTask = new DownloadTask();
+                                //                        downloadTask.execute(url);
+                                Toast.makeText(MapsActivity.this, "Voznja prijavljena", Toast.LENGTH_SHORT).show();
+                            }
+                        }else{
+
+                        }
+                    }
+                }
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    // Toast.makeText(this, "Voznja prijavljena", Toast.LENGTH_SHORT).show();
+                }
+            });
+        myDrives.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    for(DataSnapshot child : dataSnapshot.getChildren() ){
+                        // Do magic here
+                        String mUid = child.getKey();
+                        Log.e(TAG, "Ovo je uid:" +  mUid);
+                        Message message2 = child.getValue(Message.class);
+                        Log.e(TAG, "nadi chosen drives");
+                        Log.e(TAG, "chosenOne lat "+chosenOne.latitude);
+                        Log.e(TAG, "chosenOne lon "+chosenOne.longitude);
+                        Log.e(TAG, "message lat "+message2.latitudeStart);
+                        Log.e(TAG, "message lon "+message2.longitudeStart);
+                        if(chosenOne.latitude == message2.latitudeStart && chosenOne.longitude == message2.longitudeStart){
+                            Log.e(TAG, "Ovdje sam isto "+ message2.id);
+                            if (message2.status == 2 || message2.status == 4){
+                                Toast.makeText(MapsActivity.this, "This drive is already taken", Toast.LENGTH_SHORT).show();
+                            }else {
+                                Message message3 = new Message(message2.id, message2.longitudeStart, message2.latitudeStart,
+                                        message2.longitudeEnd, message2.latitudeEnd, 4, username, message2.time,
+                                        message2.kontakt, message2.razlog,message2.start, message2.end);
+                                Map<String, Object> messageValues = message3.toMap();
+                                Map<String, Object> childUpdates = new HashMap<>();
+                                Log.e(TAG, "Ovdje sam, status: " + message3.status);
+                                childUpdates.put(mUid, messageValues);
+                                myDrives.updateChildren(childUpdates);
+                                sydney4 = new LatLng(message3.latitudeEnd, message3.longitudeEnd);
+                                sydney5 = new LatLng(message3.latitudeStart, message3.longitudeStart);
+                                // odabranu zacrveni
+                                Polyline line = mMap.addPolyline(new PolylineOptions()
+                                        .add(sydney4, sydney5)
+                                        .width(5)
+                                        .color(Color.RED));
+                                uCrveno = true;
+        // Izgradnja url-a za Directions API:
+        //                        String url = getDirectionsUrl(sydney4, sydney5);
+        //                        // Dohvat json podataka s Google Directions API-a:
+        //                        DownloadTask downloadTask = new DownloadTask();
+        //                        downloadTask.execute(url);
+                                Toast.makeText(MapsActivity.this, "Voznja prijavljena", Toast.LENGTH_SHORT).show();
+                            }
+                        }else{
+
+                        }
+                    }
+                }
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    // Toast.makeText(this, "Voznja prijavljena", Toast.LENGTH_SHORT).show();
+                }
+            });
+
+
     }
 
     private boolean check_login_status(){
@@ -519,7 +630,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             uid = currentUser.getUid();
             username=SaveSharedPreference.getUserName(MapsActivity.this);
             TextView tekst = findViewById(R.id.textView);
-            tekst.setText("User "+ username);
+            tekst.setText("> "+ username);
                 // Stay at the current activity.
             Log.e(TAG, "Username login status TRUE " + username);
             return true;
@@ -530,12 +641,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (requestCode == 1) {
             if(resultCode == RESULT_OK){
                 Log.e(TAG, "RESULT OK");
-                //preuzmi_i_nacrtaj_voznje
             }
             if (resultCode == RESULT_CANCELED) {
                 //Write your code if there's no result
                 Log.e(TAG, "RESULT CANCELED");
-                //preuzmi_i_nacrtaj_voznje
             }
         }
     }//onActivityResult
@@ -545,7 +654,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         prijavaProgress = new ProgressDialog(this);
 
         TextView tekst = findViewById(R.id.textView);
-        tekst.setText("User "+ username);
+        tekst.setText("> "+ username);
         prijavi = findViewById(R.id.prijavi);
         obrisi = findViewById(R.id.obrisi);
         refresh = findViewById(R.id.refresh);
@@ -641,6 +750,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         //zapamti na koji je klikno
                         chosenOne=new LatLng(mark.getPosition().latitude, mark.getPosition().longitude);
                         Log.e(TAG,String.valueOf(mark.getPosition().longitude));
+                        Log.e(TAG,"Uloga:" + uloga);
                         klikNaInfo=true;
                         prijavi.setEnabled(true);
                         obrisi.setEnabled(true);

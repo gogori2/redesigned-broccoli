@@ -28,8 +28,9 @@ public class WelcomeActivity extends AppCompatActivity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent zastointent = new Intent(WelcomeActivity.this, ProfileActivity.class);
+                Intent zastointent = new Intent(WelcomeActivity.this, HelpActivity.class);
                 startActivity(zastointent);
+                overridePendingTransition(R.anim.swipe_in_right, R.anim.swipe_out_left);
             }
         });
         myRegButton.setOnClickListener(new View.OnClickListener() {
@@ -37,6 +38,7 @@ public class WelcomeActivity extends AppCompatActivity {
             public void onClick(View v) {
             Intent reg_intent = new Intent(WelcomeActivity.this, RegisterActivity.class);
                startActivity(reg_intent);
+                overridePendingTransition(R.anim.swipe_in_left, R.anim.swipe_out_right);
             }
         });
         myLogButton.setOnClickListener(new View.OnClickListener() {
@@ -46,6 +48,7 @@ public class WelcomeActivity extends AppCompatActivity {
                     //nastavi dalje, nema username zapisan
                     Intent log_intent = new Intent(WelcomeActivity.this, LoginActivity.class);
                     startActivity(log_intent);
+                    overridePendingTransition(R.anim.swipe_in_right, R.anim.swipe_out_left);
                 }
                 else{
                     //preskoci form i vrati me u Main
