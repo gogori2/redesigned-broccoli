@@ -1,13 +1,19 @@
 package hr.s1.rma.fbmapa;
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Build;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -53,7 +59,7 @@ public class ProfileActivity extends AppCompatActivity {
     File localFile = null;
 
     //profile name and contact
-    private TextView usernameTV,emailTV;
+    private TextView usernameTV,rideslabelTV;
 
     // List of rides
     private ListView  ridesLV;
@@ -108,11 +114,15 @@ public class ProfileActivity extends AppCompatActivity {
         profileIV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                if(checkFilePermissions())
-                Intent i = new Intent(
-                        Intent.ACTION_PICK,
-                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                startActivityForResult(i, 101); // request code 101 (proizvoljno)
+                if(isReadStoragePermissionGranted()){
+                    Intent i = new Intent(
+                            Intent.ACTION_PICK,
+                            MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                    startActivityForResult(i, 101); // request code 101 (proizvoljno)
+                }
+                else{
+
+                }
             }
         });
     }
@@ -130,6 +140,8 @@ public class ProfileActivity extends AppCompatActivity {
             this.getSupportActionBar().setTitle("Moj Profil");
         }
 
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        
         mAuth = FirebaseAuth.getInstance();
         current_user_Id = mAuth.getCurrentUser().getUid();
 
@@ -152,8 +164,9 @@ public class ProfileActivity extends AppCompatActivity {
         });
 
         String current_user_email = mAuth.getCurrentUser().getEmail();
-        emailTV = (TextView)findViewById(R.id.email_profile);
-        emailTV.setText(current_user_email);
+        rideslabelTV = (TextView)findViewById(R.id.email_profile);
+        rideslabelTV.setText("Moje vožnje:");
+        //rideslabelTV.setText(current_user_email);
 
         profileIV = findViewById(R.id.image_profile);
         showProfilePicture();
@@ -173,7 +186,6 @@ public class ProfileActivity extends AppCompatActivity {
                 String vozac = c.child("vozac").getValue(String.class);
 
                 String contact = c.child("kontakt").getValue(String.class);
-
                 arrayList.add(s + " " + e +"\n" +"vozi me: "+ vozac);
                 adapter.notifyDataSetChanged();
 
@@ -258,37 +270,67 @@ public class ProfileActivity extends AppCompatActivity {
             }
         }
     }
-    private void loadImageWithResize(File f, ImageView IV){
 
+    private void loadImageWithResize(File f, ImageView IV){
         Picasso.get()
                 .load(f)
                 .fit()
-                .into(IV);
-/*
-        Picasso.get()
-                .load(f)
-                .resize(100,100)
                 .centerCrop()
                 .into(IV);
-*/
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem menuItem) {
+        switch (menuItem.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+        }
+        return (super.onOptionsItemSelected(menuItem));
 
     }
 
-/*    private boolean checkFilePermissions() {
-
-        if(Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP){
-
-            int permissionCheck = ProfileActivity.this.checkSelfPermission("Manifest.permission.READ_EXTERNAL_STORAGE");
-
-            if (permissionCheck != 0) {
-                this.requestPermissions(new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE}, 1001); //Any number
+    public  boolean isReadStoragePermissionGranted() {
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
+                    == PackageManager.PERMISSION_GRANTED) {
+                Log.v(TAG,"Permission is granted1");
                 return true;
-            }else return false;
-        }else{
-            Log.d(TAG, "checkBTPermissions: No need to check permissions. SDK version < LOLLIPOP.");
+            } else {
+
+                Log.v(TAG,"Permission is revoked1");
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 3);
+                return false;
+            }
+        }
+        else { //permission is automatically granted on sdk<23 upon installation
+            Log.v(TAG,"Permission is granted1");
             return true;
         }
-    }*/
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case 3:
+                Log.d(TAG, "External storage1");
+                if(grantResults[0]== PackageManager.PERMISSION_GRANTED){
+                    Log.v(TAG,"Permission: "+permissions[0]+ "was "+grantResults[0]);
+                    //resume tasks needing this permission
+                    Intent i = new Intent(
+                            Intent.ACTION_PICK,
+                            MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                    startActivityForResult(i, 101); // request code 101 (proizvoljno)
+
+                }else{
+                   // progress.dismiss();
+                    Log.v(TAG,"nema dopustenja?");
+                }
+                break;
+        }
+    }
+
+
 
     @Override
     public void onBackPressed()

@@ -62,7 +62,7 @@
 
     <LinearLayout
         android:layout_width="360dp"
-        android:layout_height="107dp"
+        android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginTop="10dp"
         android:orientation="vertical">
@@ -77,14 +77,14 @@
             <ImageView
                 android:layout_width="36dp"
                 android:layout_height="36dp" />
-            <!--android:src="@drawable/ic_phone_android_black_24dp"-->
+            <!--android:src=""-->
             <TextView
                 android:layout_width="wrap_content"
 
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:paddingLeft="20dp"
-                android:text="Real Name"
+                android:text="kontakt"
                 android:textStyle="bold" />
         </LinearLayout>
 
@@ -96,10 +96,6 @@
             android:paddingLeft="10dp"
             android:paddingStart="10dp">
 
-            <ImageView
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:contentDescription="TODO" />
             <!--android:src="@drawable/ic_forum_black_24dp"-->
             <TextView
                 android:id="@+id/email_profile"
@@ -108,7 +104,7 @@
                 android:layout_gravity="center_vertical"
                 android:paddingLeft="20dp"
                 android:paddingStart="20dp"
-                android:text="Contact"
+                android:text="Moje voznje"
                 android:textStyle="bold" />
 
             <TextView
@@ -122,7 +118,8 @@
 
         android:id="@+id/rides_profile"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="wrap_content"
+        android:dividerHeight="3dp" />
 
 
 </LinearLayout>
