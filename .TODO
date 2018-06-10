@@ -4,9 +4,9 @@
 - klik na item ListView da ih povedemo?
 
 - Pri prvom upisu broja spremiti broj u Shared preferences i u bazu
-- polje zaupis kontata automatski ispuniti ako postoji broju i shared preferences
+- polje zapis kontata automatski ispuniti ako postoji broju i shared preferences
 
 - kad se pritisne na kontakt da ponudi poziv?
--dodati da pita za permission Storage da smije dohvatiti sliku!
++dodati da pita za permission Storage da smije dohvatiti sliku
 
 
