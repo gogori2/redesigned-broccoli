@@ -28,6 +28,7 @@ import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.squareup.picasso.Picasso;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -75,7 +76,7 @@ public class ProfileActivity extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
+        //TODO: ovaj dio dugo traje, trebao bi se događat posebno uz progress dialog
         mStorageRef.getFile(localFile)
                 .addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
                     @Override
@@ -91,6 +92,8 @@ public class ProfileActivity extends AppCompatActivity {
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
+
+                        loadImageWithResize(localFile, profileIV);
                     }
                 }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -151,7 +154,7 @@ public class ProfileActivity extends AppCompatActivity {
         String current_user_email = mAuth.getCurrentUser().getEmail();
         emailTV = (TextView)findViewById(R.id.email_profile);
         emailTV.setText(current_user_email);
-        
+
         profileIV = findViewById(R.id.image_profile);
         showProfilePicture();
 
@@ -216,11 +219,12 @@ public class ProfileActivity extends AppCompatActivity {
 
             if (!imagePath.equals("")) {
 
-                localFile =new File(imagePath);
+                localFile = new File(imagePath);
                 Uri uri = Uri.fromFile(localFile);
                 Log.e(TAG, "imagePath "+imagePath);
                 Log.e(TAG,"mStorageRef "+mStorageRef);
 
+                //TODO: ovaj dio dugo traje, trebao bi se događat posebno uz progress dialog
                 mStorageRef.putFile(uri)
                         .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                             @Override
@@ -237,6 +241,9 @@ public class ProfileActivity extends AppCompatActivity {
                                 } catch (FileNotFoundException e) {
                                     e.printStackTrace();
                                 }
+                                loadImageWithResize(localFile, profileIV);
+
+
                             }
                         })
                         .addOnFailureListener(new OnFailureListener() {
@@ -250,6 +257,21 @@ public class ProfileActivity extends AppCompatActivity {
 
             }
         }
+    }
+    private void loadImageWithResize(File f, ImageView IV){
+
+        Picasso.get()
+                .load(f)
+                .fit()
+                .into(IV);
+/*
+        Picasso.get()
+                .load(f)
+                .resize(100,100)
+                .centerCrop()
+                .into(IV);
+*/
+
     }
 
 /*    private boolean checkFilePermissions() {
