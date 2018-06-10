@@ -16,28 +16,11 @@
                             <entry key="actionbar">
                               <value>
                                 <PersistentState>
-                                  <option name="children">
-                                    <map>
-                                      <entry key="image">
-                                        <value>
-                                          <PersistentState>
-                                            <option name="values">
-                                              <map>
-                                                <entry key="paddingPercent" value="-5" />
-                                              </map>
-                                            </option>
-                                          </PersistentState>
-                                        </value>
-                                      </entry>
-                                    </map>
-                                  </option>
                                   <option name="values">
                                     <map>
                                       <entry key="assetType" value="IMAGE" />
-                                      <entry key="imageAsset" value="C:\Users\G0G0\Desktop\rma-apps\car_icon.png" />
-                                      <entry key="outputName" value="ic_car" />
-                                      <entry key="theme" value="CUSTOM" />
-                                      <entry key="themeColor" value="010002" />
+                                      <entry key="imageAsset" value="C:\Users\G0G0\Desktop\rma-apps\line_icon.png" />
+                                      <entry key="outputName" value="ic_line" />
                                     </map>
                                   </option>
                                 </PersistentState>

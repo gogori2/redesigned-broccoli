@@ -71,6 +71,11 @@ public class PrijavaVoznjeActivity extends AppCompatActivity {
         uloga = extras.getInt("uloga");
         mStart.setText(start);
         mEnd.setText(end);
+        if(uloga==2) {
+            mrazlog.setHint("Imam novu škodu...");
+        }else{
+            mrazlog.setHint("Razlog");
+        }
         mrazlog.setOnEditorActionListener(new TextInputEditText.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -139,9 +144,8 @@ public class PrijavaVoznjeActivity extends AppCompatActivity {
         final Double endLon = extras.getDouble("mE_lon");
         final Double endLat = extras.getDouble("mE_lat");
         final String username = extras.getString("username");
-        final String start = extras.getString("start");
-        final String end = extras.getString("end");
-
+        final String start = mStart.getText().toString();
+        final String end = mEnd.getText().toString();
         Log.d(TAG, "Value in Main is: " + username);
         if(username == null){
             Toast.makeText(this, "You are not signed in", Toast.LENGTH_SHORT).show();

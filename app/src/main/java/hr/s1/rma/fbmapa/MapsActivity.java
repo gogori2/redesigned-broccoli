@@ -1,8 +1,7 @@
 package hr.s1.rma.fbmapa;
 
 import android.app.ProgressDialog;
-import android.content.Context;
-import android.content.DialogInterface;
+
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -12,12 +11,10 @@ import android.location.Geocoder;
 import android.nfc.Tag;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
-import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Gravity;
@@ -27,6 +24,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -71,10 +69,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     FirebaseDatabase database = FirebaseDatabase.getInstance();
     DatabaseReference myDrives = database.getReference("drives");
     DatabaseReference myRef = database.getReference("location");
-
-    private DatabaseReference mdatabase, mUserDatabase,mUserDatabase2;
-
-    public boolean voznja = false,prviPut=true;
+    private DatabaseReference mUserDatabase,mUserDatabase2;
+    public boolean voznja = false, prviPut=true, stisnut=true;
     public boolean klikNaInfo = false, uCrveno=false;
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
     static LatLng sydney = new LatLng(45.340692, 14.407214);
@@ -86,21 +82,19 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     static LatLng mojEnd = new LatLng(45.340737, 14.408180);
     static LatLng chosenOne = new LatLng(0, 0);
     public int j = 0, i = 0, uloga = 0;
-    Button refresh, prijavi, obrisi;
+    Button prijavi, obrisi;
+    ImageButton refresh,rute;
     Marker mMarker;
-    static double lats, lons, late, lone, mojStartLat, mojStartLon, mojEndLat, mojEndLon;
+    static double mojStartLat, mojStartLon, mojEndLat, mojEndLon;
     private GoogleMap mMap;
     private static final String TAG = "*";
     private ArrayList<Message> messageList = new ArrayList<Message>();
-    private ArrayList<Marker> mMarkerArray = new ArrayList<Marker>();
-    private FirebaseAuth mAuth;
     private String username, uid;
     private TextView aStart,aEnd;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-        mAuth = FirebaseAuth.getInstance();
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         mUserDatabase = FirebaseDatabase.getInstance().getReference().child("location");
 //        uid = currentUser.getUid();
@@ -161,6 +155,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 prijavi.setText(this.getResources().getString(R.string.zatrazi_voznju));
                 obrisi.setText(this.getResources().getString(R.string.obrisi_voznju));
                 refresh.setVisibility(View.GONE);
+                rute.setVisibility(View.GONE);
                 aStart.setVisibility(View.VISIBLE);
                 aEnd.setVisibility(View.VISIBLE);
                 uloga = 1;
@@ -172,6 +167,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 prijavi.setText(this.getResources().getString(R.string.zatrazi_voznju));
                 obrisi.setText(this.getResources().getString(R.string.obrisi_voznju));
                 refresh.setVisibility(View.GONE);
+                rute.setVisibility(View.GONE);
                 aStart.setVisibility(View.VISIBLE);
                 aEnd.setVisibility(View.VISIBLE);
                 uloga=2;
@@ -181,6 +177,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 voznja = true;
                 //pokazi refresh butt
                 refresh.setVisibility(View.VISIBLE);
+                rute.setVisibility(View.VISIBLE);
                 aStart.setVisibility(View.GONE);
                 aEnd.setVisibility(View.GONE);
                 prijavi.setEnabled(false); obrisi.setEnabled(false);
@@ -286,6 +283,45 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 Toast.makeText(MapsActivity.this, "Successfully canceled", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+    public void nacrtaj_voznje2(){
+        mMap.clear();
+        setTitle(getString(R.string.prihvati_voznju_label));
+        Log.e(TAG, "velicina liste:" + messageList.size());
+        for(int i=0; i<messageList.size();i++){
+
+            Message message;
+            message = messageList.get(i);
+            sydney2 = new LatLng(message.latitudeEnd, message.longitudeEnd);
+            sydney3 = new LatLng(message.latitudeStart, message.longitudeStart);
+
+            if(message.status==3 || message.status==4){
+                mMarker = mMap.addMarker(new MarkerOptions().position(sydney3)
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_car))
+                        .title(message.id));
+
+                mMap.addMarker(new MarkerOptions().position(sydney2)
+                        .title("End")
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_endicon)));
+            }else{
+                mMarker = mMap.addMarker(new MarkerOptions().position(sydney3)
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_walkicon))
+                        .title(message.id));
+
+                mMap.addMarker(new MarkerOptions().position(sydney2)
+                        .title("End")
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_endicon)));
+            }
+
+
+            String url = getDirectionsUrl(sydney2, sydney3);
+            DownloadTask downloadTask = new DownloadTask();
+            downloadTask.execute(url);
+
+            mMarker.setSnippet("Vrijeme polaska: " + message.time + "\nZašto mene:" + message.razlog + "\nKontakt:" + message.kontakt + "\nStart:" + message.start + "\nEnd:" + message.end);
+        }
+
+
     }
     public void nacrtaj_voznje(){
         mMap.clear();
@@ -406,8 +442,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void spoji_linije(int status){
-        if(status==2){
-//            uCrveno=true;
+        if(status==2 || status==4){
             Polyline line = mMap.addPolyline(new PolylineOptions()
                     .add(sydney2,sydney3)
                     .width(5)
@@ -654,10 +689,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         prijavaProgress = new ProgressDialog(this);
 
         TextView tekst = findViewById(R.id.textView);
-        tekst.setText("> "+ username);
+        tekst.setText("> " + username);
         prijavi = findViewById(R.id.prijavi);
         obrisi = findViewById(R.id.obrisi);
         refresh = findViewById(R.id.refresh);
+        rute=findViewById(R.id.rute);
+
         mMap=googleMap;
         //button radi na pocetku
         prijavi.setEnabled(true);
@@ -665,6 +702,18 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         prijavi = findViewById(R.id.prijavi);
         obrisi = findViewById(R.id.obrisi);
         refresh = findViewById(R.id.refresh);
+
+        rute.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(stisnut){
+                    nacrtaj_voznje2();
+                }else{
+                    nacrtaj_voznje();
+                }
+                stisnut=!stisnut;
+            }
+        });
         prijavi.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -840,7 +889,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         String str_dest = "destination=" + dest.latitude + "," + dest.longitude;
         // Mode of Transport => WALKING!
         // napomena: defaults je "driving"!
-        String transportMode = "mode=walking";
+        String transportMode = "mode=driving";
         // Sensor
         String sensor = "sensor=false";
         // API key
@@ -851,7 +900,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         String output = "json";
         // Rezultantni URL:
         String result_url = "https://maps.googleapis.com/maps/api/directions/" + output + "?" + parameters;
-        System.out.println("***** " + result_url);
+       // System.out.println("***** " + result_url);
         return result_url;
     }
 /*
@@ -936,7 +985,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
-            System.out.println("***** " + result);
+//            System.out.println("***** " + result);
 
             // Opet zadavanje asinkronog zadatka, ovog puta za parsiranje JSON ruta:
             ParserTask parserTask = new ParserTask();
@@ -1004,12 +1053,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         protected void onPostExecute(jsonParsedData completeResult) {
             ArrayList<LatLng> points = new ArrayList<LatLng>();;
             PolylineOptions lineOptions = new PolylineOptions();;
-            lineOptions.width(2);
-            if(uCrveno){
-                lineOptions.color(Color.RED);
-            }else{
-                lineOptions.color(Color.GREEN);
-            }
+            lineOptions.width(3);
+            lineOptions.color(Color.BLACK);
+//            if(uCrveno){
+//                lineOptions.color(Color.RED);
+//            }else{
+//                lineOptions.color(Color.GREEN);
+//            }
 
             List<List<HashMap<String, String>>> result = completeResult.get_routeToDraw();
             String[] infoWalking = completeResult.get_walkingData();
@@ -1036,11 +1086,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 // Dodavanje svih tocaka rute u LineOptions objekt:
                 lineOptions.addAll(points);
                 lineOptions.width(5);
-                if(uCrveno){
-                    lineOptions.color(Color.RED);
-                }else{
-                    lineOptions.color(Color.GREEN);
-                }
+                lineOptions.color(Color.DKGRAY);
+//                if(uCrveno){
+//                    lineOptions.color(Color.RED);
+//                }else{
+//                    lineOptions.color(Color.GREEN);
+//                }
             }
 
             // Vizualizacija rute na google mapi:

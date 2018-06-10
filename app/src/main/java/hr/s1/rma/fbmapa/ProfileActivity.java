@@ -1,7 +1,9 @@
 package hr.s1.rma.fbmapa;
+import android.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -23,7 +25,8 @@ public class ProfileActivity extends AppCompatActivity {
         setContentView(R.layout.activity_profile);
         Log.e(TAG, "pokrenut Profil");
 //        treba dodati toolbar i svasta da bi radila strjelica
-//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         mUserDatabase = FirebaseDatabase.getInstance().getReference().child("Users");
         mAuth = FirebaseAuth.getInstance();
         String current_user_Id = mAuth.getCurrentUser().getUid();
@@ -49,5 +52,15 @@ public class ProfileActivity extends AppCompatActivity {
         //start activity je pokrene ispocetka
         //startActivity(new Intent(ProfileActivity.this, MapsActivity.class));
         finish();
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem menuItem) {
+        switch (menuItem.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+        }
+        return (super.onOptionsItemSelected(menuItem));
+
     }
 }

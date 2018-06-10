@@ -44,7 +44,7 @@ public class RegisterActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
-        setTitle("Registracija");
+        setTitle("Registracija korisnika");
         mAuth = FirebaseAuth.getInstance();
 
         mUsername = (TextInputEditText ) findViewById(R.id.reg_username);
