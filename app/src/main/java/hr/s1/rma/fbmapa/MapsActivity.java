@@ -213,7 +213,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         if(uloga==1){
             setTitle("Zatraži vožnju");
             Log.e(TAG, "moja voznja");
-        }else {
+        }else{
             setTitle("Ponudi vožnju");
             Log.e(TAG, "ponudi voznju");
         }
@@ -273,16 +273,25 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mojStart, 14.0f));
     }
 
-    public void otkazi_moju_voznju(){
+    public void otkazi_moju_voznju(int uloga){
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         String uid = currentUser.getUid();
+        if(uloga==1){
+            myRef.child(uid).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    Toast.makeText(MapsActivity.this, "Successfully canceled", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }else{
+            myDrives.child(uid).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    Toast.makeText(MapsActivity.this, "Successfully canceled", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
 
-        myRef.child(uid).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                Toast.makeText(MapsActivity.this, "Successfully canceled", Toast.LENGTH_SHORT).show();
-            }
-        });
     }
     public void nacrtaj_voznje2(){
         mMap.clear();
@@ -312,7 +321,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         .title("End")
                         .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_endicon)));
             }
-
 
             String url = getDirectionsUrl(sydney2, sydney3);
             DownloadTask downloadTask = new DownloadTask();
@@ -390,7 +398,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_endicon)));
 
                         spoji_linije(message.status);
-                        mMarker.setSnippet("Vrijeme polaska: " + message.time + "\nZašto mene:" + message.razlog + "\nKontakt:" + message.kontakt + "\nStart:" + message.start + "\nEnd:" + message.end);
+                        mMarker.setSnippet("Vrijeme polaska: " + message.time + "\nZašto mene:" + message.razlog + "\nKontakt:" +
+                                            message.kontakt + "\nStart:" + message.start + "\nEnd:" + message.end + "\nbrPutnika:" + message.br_putnika);
                         //String url = getDirectionsUrl(sydney2, sydney3);
                         //DownloadTask downloadTask = new DownloadTask();
                         //downloadTask.execute(url);
@@ -423,7 +432,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_endicon)));
 
                         spoji_linije(message.status);
-                        mMarker.setSnippet("Vrijeme polaska: " + message.time + "\nZašto mene:" + message.razlog + "\nKontakt:" + message.kontakt + "\nStart:" + message.start + "\nEnd:" + message.end);
+                        mMarker.setSnippet("Vrijeme polaska: " + message.time + "\nZašto mene:" + message.razlog + "\nKontakt:"
+                                + message.kontakt + "\nStart:" + message.start + "\nEnd:" + message.end + "\nSlobodnih mjesta:" + message.br_putnika);
                         //String url = getDirectionsUrl(sydney2, sydney3);
                         //DownloadTask downloadTask = new DownloadTask();
                         //downloadTask.execute(url);
@@ -470,7 +480,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                Log.e(TAG, "Ovo je vozac:" +  message2.vozac);
                                Message message3 = new Message(message2.id, message2.longitudeStart, message2.latitudeStart,
                                        message2.longitudeEnd, message2.latitudeEnd, 1, "Odustao " + message2.vozac,
-                                       message2.time, message2.kontakt, message2.razlog, message2.start, message2.end);
+                                       message2.time, message2.kontakt, message2.razlog, message2.start, message2.end, message2.br_putnika);
                                Map<String, Object> messageValues = message3.toMap();
                                Map<String, Object> childUpdates = new HashMap<>();
 
@@ -516,7 +526,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                             Log.e(TAG, "Ovo je vozac:" +  message2.vozac);
                             Message message3 = new Message(message2.id, message2.longitudeStart, message2.latitudeStart,
                                     message2.longitudeEnd, message2.latitudeEnd, 3, "Odustao " + message2.vozac,
-                                    message2.time, message2.kontakt, message2.razlog, message2.start, message2.end);
+                                    message2.time, message2.kontakt, message2.razlog, message2.start, message2.end,message2.br_putnika);
                             Map<String, Object> messageValues = message3.toMap();
                             Map<String, Object> childUpdates = new HashMap<>();
 
@@ -568,7 +578,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                             }else {
                                 Message message3 = new Message(message2.id, message2.longitudeStart, message2.latitudeStart,
                                         message2.longitudeEnd, message2.latitudeEnd, 2, username, message2.time,
-                                        message2.kontakt, message2.razlog,message2.start, message2.end);
+                                        message2.kontakt, message2.razlog,message2.start, message2.end, message2.br_putnika);
                                 Map<String, Object> messageValues = message3.toMap();
                                 Map<String, Object> childUpdates = new HashMap<>();
                                 Log.e(TAG, "Ovdje sam, status: " + message3.status);
@@ -619,7 +629,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                             }else {
                                 Message message3 = new Message(message2.id, message2.longitudeStart, message2.latitudeStart,
                                         message2.longitudeEnd, message2.latitudeEnd, 4, username, message2.time,
-                                        message2.kontakt, message2.razlog,message2.start, message2.end);
+                                        message2.kontakt, message2.razlog,message2.start, message2.end, message2.br_putnika);
                                 Map<String, Object> messageValues = message3.toMap();
                                 Map<String, Object> childUpdates = new HashMap<>();
                                 Log.e(TAG, "Ovdje sam, status: " + message3.status);
@@ -751,7 +761,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onClick(View v) {
                 if (!voznja){
                     //prvo treba upisati vrijeme nalaska
-                    otkazi_moju_voznju();
+                    otkazi_moju_voznju(uloga);
                 }else{
                     //ako vozac klikne:
                     otkazi_prihvacenu_voznju();

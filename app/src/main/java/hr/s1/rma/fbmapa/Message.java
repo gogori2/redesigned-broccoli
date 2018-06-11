@@ -21,13 +21,14 @@ public class Message {
     public String razlog;
     public String start;
     public String end;
+    public int br_putnika;
     public Message() {
         // Default constructor required for calls to DataSnapshot.getValue(Post.class)
     }
 
     public Message(String id, double longitude, double latitude, double longitude2,
                    double latitude2, int status, String vozac, String time, String kontakt,
-                   String razlog, String start, String end) {
+                   String razlog, String start, String end, int br_putnika) {
         this.id = id;
         this.longitudeStart = longitude;
         this.latitudeStart = latitude;
@@ -40,6 +41,7 @@ public class Message {
         this.razlog = razlog;
         this.start = start;
         this.end = end;
+        this.br_putnika = br_putnika;
     }
 
     @Exclude
@@ -57,6 +59,7 @@ public class Message {
         result.put("razlog", razlog);
         result.put("start", start);
         result.put("end", end);
+        result.put("br_putnika", br_putnika);
         return result;
     }
 }

@@ -40,11 +40,12 @@ public class PrijavaVoznjeActivity extends AppCompatActivity {
     private TextInputEditText  mrazlog;
     private EditText mStart;
     private EditText mEnd;
-    private Button mok_button,mcancel_button;
+    private EditText mBrPut;
+    private Button mok_button,mcancel_button, mPlus, mMinus;
     private ProgressDialog prijavaProgress;
     private static final String TAG = "*";
     private String uid;
-    private Integer uloga;
+    private Integer uloga, br_putnika=1;
     FirebaseDatabase database = FirebaseDatabase.getInstance();
     DatabaseReference myRef = database.getReference("location");
     DatabaseReference myCarRef = database.getReference("drives");
@@ -60,8 +61,11 @@ public class PrijavaVoznjeActivity extends AppCompatActivity {
         mrazlog = (TextInputEditText ) findViewById(R.id.razlog);
         mStart = (EditText ) findViewById(R.id.editTextStart);
         mEnd = (EditText ) findViewById(R.id.editTextEnd);
+        mBrPut = (EditText ) findViewById(R.id.br_putnika);
         mok_button = findViewById(R.id.ok_button);
         mcancel_button = findViewById(R.id.Cancel_button);
+        mPlus = findViewById(R.id.plus);
+        mMinus = findViewById(R.id.minus);
         prijavaProgress = new ProgressDialog(this);
 
         Intent intent = getIntent();
@@ -76,7 +80,8 @@ public class PrijavaVoznjeActivity extends AppCompatActivity {
         }else{
             mrazlog.setHint("Razlog");
         }
-        mrazlog.setOnEditorActionListener(new TextInputEditText.OnEditorActionListener() {
+
+        mBrPut.setOnEditorActionListener(new TextInputEditText.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
@@ -84,6 +89,23 @@ public class PrijavaVoznjeActivity extends AppCompatActivity {
                     return true;
                 }
                 return false;
+            }
+        });
+        mMinus.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if(br_putnika>1) {
+                    br_putnika = br_putnika - 1;
+                    mBrPut.setText(br_putnika.toString());
+                }
+            }
+        });
+        mPlus.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                br_putnika = br_putnika + 1;
+                mBrPut.setText(br_putnika.toString());
             }
         });
         mok_button.setOnClickListener(new View.OnClickListener() {
@@ -146,13 +168,14 @@ public class PrijavaVoznjeActivity extends AppCompatActivity {
         final String username = extras.getString("username");
         final String start = mStart.getText().toString();
         final String end = mEnd.getText().toString();
+        br_putnika = Integer.parseInt(mBrPut.getText().toString());
         Log.d(TAG, "Value in Main is: " + username);
         if(username == null){
             Toast.makeText(this, "You are not signed in", Toast.LENGTH_SHORT).show();
         }else{
             if(uloga==1){
             Message message = new Message(username, startLon, startLat, endLon, endLat, 1,
-                                          username, time, kontakt, razlog, start, end);
+                                          username, time, kontakt, razlog, start, end, 2);
             Map<String, Object> messageValues = message.toMap();
             Map<String, Object> childUpdates = new HashMap<>();
             childUpdates.put(uid, messageValues);
@@ -171,7 +194,7 @@ public class PrijavaVoznjeActivity extends AppCompatActivity {
                 });
             }else{
                 Message message = new Message(username, startLon, startLat, endLon, endLat, 3,
-                        username, time, kontakt, razlog, start, end);
+                        username, time, kontakt, razlog, start, end, br_putnika);
                 Map<String, Object> messageValues = message.toMap();
                 Map<String, Object> childUpdates = new HashMap<>();
                 childUpdates.put(uid, messageValues);
