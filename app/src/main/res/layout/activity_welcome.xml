@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".WelcomeActivity">
-    <!--android:background="@drawable/gradient_background"-->
+    tools:context=".WelcomeActivity"
+    android:background="@drawable/gradient_background">
 
 
     <TextView
@@ -16,7 +16,7 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="99dp"
         android:text="@string/welcome_opis"
-        android:textColor="@android:color/holo_blue_dark"
+        android:textColor="@color/colorWhite"
         android:textSize="18sp" />
 
     <TextView
@@ -27,7 +27,7 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="52dp"
         android:text="@string/welcome_natpis"
-        android:textColor="@android:color/background_dark"
+        android:textColor="@color/colorWhite"
         android:textSize="22sp" />
 
     <Button

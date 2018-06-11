@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">FbMapa</string>
+    <string name="app_name">PickApp</string>
     <string name="title_activity_maps">Map</string>
     <string name="zatrazi_voznju">Zatraži vožnju</string>
     <string name="obrisi_voznju">Otkaži vožnju</string>
