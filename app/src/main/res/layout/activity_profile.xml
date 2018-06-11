@@ -45,7 +45,6 @@
                 android:layout_height="150dp"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="10dp" />
-            <!--android:src="@drawable/photocercle"-->
             <TextView
                 android:id="@+id/profile_username"
                 android:layout_width="wrap_content"
@@ -75,18 +74,32 @@
             android:paddingLeft="10dp">
 
             <ImageView
-                android:layout_width="36dp"
-                android:layout_height="36dp" />
-            <!--android:src=""-->
-            <TextView
-                android:layout_width="wrap_content"
+                android:src="@drawable/ic_call"
+                android:layout_width="30dp"
+                android:layout_height="30dp" />
 
+<!--            <ImageButton
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:id="@+id/ic_call"
+                android:onClick="dialNumber"/>-->
+
+            <TextView
+                android:id="@+id/contact_profile"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:paddingLeft="20dp"
                 android:text="kontakt"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+               />
+            <!--android:onClick="dialNumber"-->
         </LinearLayout>
+
+        <ImageView
+            android:src="@drawable/ic_car"
+            android:layout_width="30dp"
+            android:layout_height="30dp" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -98,7 +111,7 @@
 
             <!--android:src="@drawable/ic_forum_black_24dp"-->
             <TextView
-                android:id="@+id/email_profile"
+                android:id="@+id/rideslabel_profile"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
@@ -108,7 +121,6 @@
                 android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/contact_profile"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
         </LinearLayout>

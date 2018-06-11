@@ -12,6 +12,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.telephony.PhoneNumberUtils;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -41,6 +42,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Locale;
 
 public class ProfileActivity extends AppCompatActivity {
 
@@ -59,7 +61,7 @@ public class ProfileActivity extends AppCompatActivity {
     File localFile = null;
 
     //profile name and contact
-    private TextView usernameTV,rideslabelTV;
+    private TextView usernameTV,rideslabelTV, contactTV;
 
     // List of rides
     private ListView  ridesLV;
@@ -153,7 +155,20 @@ public class ProfileActivity extends AppCompatActivity {
         mUserDatabase.child(current_user_Id).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+
                 String username = dataSnapshot.child("Username").getValue(String.class);
+                String contact = dataSnapshot.child("kontakt").getValue(String.class);
+
+                String normalizedPhoneNumber = PhoneNumberUtils.normalizeNumber(contact);
+                String formattedNumber = PhoneNumberUtils.formatNumber(normalizedPhoneNumber, Locale.getDefault().getCountry());
+                String phoneNumber = String.format("tel: %s", formattedNumber);
+
+                Log.e(TAG,normalizedPhoneNumber);
+                Log.e(TAG,formattedNumber);
+                Log.e(TAG,phoneNumber);
+
+                contactTV.setText(formattedNumber);
+
                 Log.e(TAG, "Username u profilu " + username);
                 usernameTV.setText(username);
             }
@@ -164,7 +179,30 @@ public class ProfileActivity extends AppCompatActivity {
         });
 
         String current_user_email = mAuth.getCurrentUser().getEmail();
-        rideslabelTV = (TextView)findViewById(R.id.email_profile);
+
+        contactTV=findViewById(R.id.contact_profile);
+        contactTV.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                // TextView textView = (TextView) findViewById(R.id.number_to_call);
+                // Use format with "tel:" and phone number to create phoneNumber.
+                String phoneNumber = String.format("tel: %s", contactTV.getText().toString());
+
+                // Create the intent.
+                Intent dialIntent = new Intent(Intent.ACTION_DIAL);
+                // Set the data for the intent as the phone number.
+                dialIntent.setData(Uri.parse(phoneNumber));
+                // If package resolves to an app, send intent.
+                if (dialIntent.resolveActivity(getPackageManager()) != null) {
+                    startActivity(dialIntent);
+                } else {
+                    Log.e(TAG, "Can't resolve app for ACTION_DIAL Intent.");
+                }
+            }
+        });
+
+        rideslabelTV = (TextView)findViewById(R.id.rideslabel_profile);
         rideslabelTV.setText("Moje vožnje:");
         //rideslabelTV.setText(current_user_email);
 
@@ -186,6 +224,10 @@ public class ProfileActivity extends AppCompatActivity {
                 String vozac = c.child("vozac").getValue(String.class);
 
                 String contact = c.child("kontakt").getValue(String.class);
+/*                String normalizedPhoneNumber = PhoneNumberUtils.normalizeNumber(contact);
+                String formattedNumber = PhoneNumberUtils.formatNumber(normalizedPhoneNumber, Locale.getDefault().getCountry());
+                String phoneNumber = String.format("tel: %s", formattedNumber);
+                contactTV.setText(phoneNumber);*/
                 arrayList.add(s + " " + e +"\n" +"vozi me: "+ vozac);
                 adapter.notifyDataSetChanged();
 
@@ -195,6 +237,7 @@ public class ProfileActivity extends AppCompatActivity {
                 Log.w(TAG, "Failed to read value.", error.toException());
             }
         });
+
         ridesLV.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -293,7 +336,7 @@ public class ProfileActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= 23) {
             if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
                     == PackageManager.PERMISSION_GRANTED) {
-                Log.v(TAG,"Permission is granted1");
+                    Log.v(TAG,"Permission is granted1");
                 return true;
             } else {
 
@@ -331,6 +374,22 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
 
+    public void dialNumber() {
+/*       // TextView textView = (TextView) findViewById(R.id.number_to_call);
+        // Use format with "tel:" and phone number to create phoneNumber.
+        String phoneNumber = String.format("tel: %s", contactTV.getText().toString());
+
+        // Create the intent.
+        Intent dialIntent = new Intent(Intent.ACTION_DIAL);
+        // Set the data for the intent as the phone number.
+        dialIntent.setData(Uri.parse(phoneNumber));
+        // If package resolves to an app, send intent.
+        if (dialIntent.resolveActivity(getPackageManager()) != null) {
+            startActivity(dialIntent);
+        } else {
+            Log.e(TAG, "Can't resolve app for ACTION_DIAL Intent.");
+        }*/
+    }
 
     @Override
     public void onBackPressed()
