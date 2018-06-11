@@ -479,7 +479,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                Log.e(TAG, "Ovo je username:" + username);
                                Log.e(TAG, "Ovo je vozac:" +  message2.vozac);
                                Message message3 = new Message(message2.id, message2.longitudeStart, message2.latitudeStart,
-                                       message2.longitudeEnd, message2.latitudeEnd, 1, "Odustao " + message2.vozac,
+                                       message2.longitudeEnd, message2.latitudeEnd, 1, "Nedredeno",
                                        message2.time, message2.kontakt, message2.razlog, message2.start, message2.end, message2.br_putnika);
                                Map<String, Object> messageValues = message3.toMap();
                                Map<String, Object> childUpdates = new HashMap<>();
@@ -499,7 +499,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                childUpdates.put(mUid, messageValues);
                                myRef.updateChildren(childUpdates);
                                Toast.makeText(MapsActivity.this, "Drive canceled", Toast.LENGTH_SHORT).show();
-                           }else if (message2.vozac.equals("Odustao "+username)){
+                           }else if (message2.vozac.equals("Nedredeno")){
                                Toast.makeText(MapsActivity.this, "You can not cancel what is not cancelable", Toast.LENGTH_SHORT).show();
                            }else{
                                Toast.makeText(MapsActivity.this, "You can not cancel one's drive", Toast.LENGTH_SHORT).show();
@@ -525,7 +525,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                             Log.e(TAG, "Ovo je username:" + username);
                             Log.e(TAG, "Ovo je vozac:" +  message2.vozac);
                             Message message3 = new Message(message2.id, message2.longitudeStart, message2.latitudeStart,
-                                    message2.longitudeEnd, message2.latitudeEnd, 3, "Odustao " + message2.vozac,
+                                    message2.longitudeEnd, message2.latitudeEnd, 3, "Nedredeno" ,
                                     message2.time, message2.kontakt, message2.razlog, message2.start, message2.end,message2.br_putnika);
                             Map<String, Object> messageValues = message3.toMap();
                             Map<String, Object> childUpdates = new HashMap<>();
@@ -545,7 +545,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                             childUpdates.put(mUid, messageValues);
                             myDrives.updateChildren(childUpdates);
                             Toast.makeText(MapsActivity.this, "Drive canceled", Toast.LENGTH_SHORT).show();
-                        }else if (message2.vozac.equals("Odustao "+username)){
+                        }else if (message2.vozac.equals("Nedredeno")){
                             Toast.makeText(MapsActivity.this, "You can not cancel what is not cancelable", Toast.LENGTH_SHORT).show();
                         }else{
                             Toast.makeText(MapsActivity.this, "You can not cancel one's drive", Toast.LENGTH_SHORT).show();
