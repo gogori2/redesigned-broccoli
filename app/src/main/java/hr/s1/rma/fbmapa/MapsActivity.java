@@ -2,6 +2,7 @@ package hr.s1.rma.fbmapa;
 
 import android.app.ProgressDialog;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -15,6 +16,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Gravity;
@@ -94,6 +96,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_maps);
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         mUserDatabase = FirebaseDatabase.getInstance().getReference().child("location");
@@ -360,8 +363,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_endicon)));
             }
 
-
-            spoji_linije(message.status);
+            spoji_linije(message.status,sydney3,sydney2);
 
             mMarker.setSnippet("Vrijeme polaska: " + message.time + "\nZašto mene:" + message.razlog + "\nKontakt:" + message.kontakt + "\nStart:" + message.start + "\nEnd:" + message.end);
         }
@@ -397,7 +399,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                 .title("End")
                                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_endicon)));
 
-                        spoji_linije(message.status);
+                        spoji_linije(message.status,sydney3,sydney2);
                         mMarker.setSnippet("Vrijeme polaska: " + message.time + "\nZašto mene:" + message.razlog + "\nKontakt:" +
                                             message.kontakt + "\nStart:" + message.start + "\nEnd:" + message.end + "\nbrPutnika:" + message.br_putnika);
                         //String url = getDirectionsUrl(sydney2, sydney3);
@@ -431,7 +433,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                 .title("End")
                                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_endicon)));
 
-                        spoji_linije(message.status);
+                        spoji_linije(message.status,sydney3,sydney2);
                         mMarker.setSnippet("Vrijeme polaska: " + message.time + "\nZašto mene:" + message.razlog + "\nKontakt:"
                                 + message.kontakt + "\nStart:" + message.start + "\nEnd:" + message.end + "\nSlobodnih mjesta:" + message.br_putnika);
                         //String url = getDirectionsUrl(sydney2, sydney3);
@@ -451,15 +453,15 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney, 12.0f));
     }
 
-    private void spoji_linije(int status){
+    private void spoji_linije(int status, LatLng start, LatLng end){
         if(status==2 || status==4){
             Polyline line = mMap.addPolyline(new PolylineOptions()
-                    .add(sydney2,sydney3)
+                    .add(start,end)
                     .width(5)
                     .color(Color.RED));
         }else{
             Polyline line = mMap.addPolyline(new PolylineOptions()
-                    .add(sydney2,sydney3)
+                    .add(start,end)
                     .width(5)
                     .color(Color.GREEN));
         }
@@ -484,18 +486,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                Map<String, Object> messageValues = message3.toMap();
                                Map<String, Object> childUpdates = new HashMap<>();
 
-                               sydney4 = new LatLng(message3.latitudeEnd, message3.longitudeEnd);
                                sydney5 = new LatLng(message3.latitudeStart, message3.longitudeStart);
+                               sydney4 = new LatLng(message3.latitudeEnd, message3.longitudeEnd);
+                               spoji_linije(1,sydney5,sydney4);
 
-                               uCrveno=false;
-     //                        String url = getDirectionsUrl(sydney4, sydney5);
-     //                        // Dohvat json podataka s Google Directions API-a:
-     //                        DownloadTask downloadTask = new DownloadTask();
-//                             downloadTask.execute(url);
-                               Polyline line = mMap.addPolyline(new PolylineOptions()
-                                       .add(sydney4,sydney5)
-                                       .width(5)
-                                       .color(Color.GREEN));
                                childUpdates.put(mUid, messageValues);
                                myRef.updateChildren(childUpdates);
                                Toast.makeText(MapsActivity.this, "Drive canceled", Toast.LENGTH_SHORT).show();
@@ -530,18 +524,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                             Map<String, Object> messageValues = message3.toMap();
                             Map<String, Object> childUpdates = new HashMap<>();
 
-                            sydney4 = new LatLng(message3.latitudeEnd, message3.longitudeEnd);
                             sydney5 = new LatLng(message3.latitudeStart, message3.longitudeStart);
+                            sydney4 = new LatLng(message3.latitudeEnd, message3.longitudeEnd);
+                            spoji_linije(3,sydney5,sydney4);
 
-                            uCrveno=false;
-                            //                        String url = getDirectionsUrl(sydney4, sydney5);
-                            //                        // Dohvat json podataka s Google Directions API-a:
-                            //                        DownloadTask downloadTask = new DownloadTask();
-//                             downloadTask.execute(url);
-                            Polyline line = mMap.addPolyline(new PolylineOptions()
-                                    .add(sydney4,sydney5)
-                                    .width(5)
-                                    .color(Color.GREEN));
                             childUpdates.put(mUid, messageValues);
                             myDrives.updateChildren(childUpdates);
                             Toast.makeText(MapsActivity.this, "Drive canceled", Toast.LENGTH_SHORT).show();
@@ -558,7 +544,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
     }
-
+    //prihvaćavanje vožnje ili putnika
     public void nadi_chosen(){
             myRef.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
@@ -584,19 +570,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                 Log.e(TAG, "Ovdje sam, status: " + message3.status);
                                 childUpdates.put(mUid, messageValues);
                                 myRef.updateChildren(childUpdates);
-                                sydney4 = new LatLng(message3.latitudeEnd, message3.longitudeEnd);
                                 sydney5 = new LatLng(message3.latitudeStart, message3.longitudeStart);
+                                sydney4 = new LatLng(message3.latitudeEnd, message3.longitudeEnd);
+
                                 // odabranu zacrveni
                                 Polyline line = mMap.addPolyline(new PolylineOptions()
                                         .add(sydney4, sydney5)
                                         .width(5)
                                         .color(Color.RED));
-                                uCrveno = true;
-                                // Izgradnja url-a za Directions API:
-                                //                        String url = getDirectionsUrl(sydney4, sydney5);
-                                //                        // Dohvat json podataka s Google Directions API-a:
-                                //                        DownloadTask downloadTask = new DownloadTask();
-                                //                        downloadTask.execute(url);
                                 Toast.makeText(MapsActivity.this, "Voznja prijavljena", Toast.LENGTH_SHORT).show();
                             }
                         }else{
@@ -627,8 +608,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                             if (message2.status == 2 || message2.status == 4){
                                 Toast.makeText(MapsActivity.this, "This drive is already taken", Toast.LENGTH_SHORT).show();
                             }else {
+                                int broj=0;
+                                broj=message2.br_putnika;
                                 Message message3 = new Message(message2.id, message2.longitudeStart, message2.latitudeStart,
-                                        message2.longitudeEnd, message2.latitudeEnd, 4, username, message2.time,
+                                        message2.longitudeEnd, message2.latitudeEnd, 3, username, message2.time,
                                         message2.kontakt, message2.razlog,message2.start, message2.end, message2.br_putnika);
                                 Map<String, Object> messageValues = message3.toMap();
                                 Map<String, Object> childUpdates = new HashMap<>();
@@ -642,12 +625,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                         .add(sydney4, sydney5)
                                         .width(5)
                                         .color(Color.RED));
-                                uCrveno = true;
-        // Izgradnja url-a za Directions API:
-        //                        String url = getDirectionsUrl(sydney4, sydney5);
-        //                        // Dohvat json podataka s Google Directions API-a:
-        //                        DownloadTask downloadTask = new DownloadTask();
-        //                        downloadTask.execute(url);
                                 Toast.makeText(MapsActivity.this, "Voznja prijavljena", Toast.LENGTH_SHORT).show();
                             }
                         }else{
@@ -727,6 +704,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         prijavi.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //onaj koji zatrazuje
                 if (!voznja){
                     //prvo treba upisati vrijeme nalaska, idemo sad
                     Intent prijava = new Intent(MapsActivity.this,PrijavaVoznjeActivity.class);
@@ -913,7 +891,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
        // System.out.println("***** " + result_url);
         return result_url;
     }
-/*
     // Eksplicitno pitanje (korisniku) za dozvolu koristenja Location usluge:
     private void checkLocationPermission() {
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
@@ -945,7 +922,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         MY_PERMISSIONS_REQUEST_LOCATION );
             }
         }
-    }*/
+    }
     // Handle za korisnikov eksplicitni odgovr oko dozvole za koristenje Location usluga:
     @Override
     public void onRequestPermissionsResult(int requestCode,

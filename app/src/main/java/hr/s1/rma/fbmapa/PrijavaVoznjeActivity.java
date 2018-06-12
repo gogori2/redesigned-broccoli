@@ -76,7 +76,7 @@ public class PrijavaVoznjeActivity extends AppCompatActivity {
         mStart.setText(start);
         mEnd.setText(end);
         if(uloga==2) {
-            mrazlog.setHint("Imam novu škodu...");
+            mrazlog.setHint("Imam zelenu škodu, reg: RI-123-XY...");
         }else{
             mrazlog.setHint("Razlog");
         }
