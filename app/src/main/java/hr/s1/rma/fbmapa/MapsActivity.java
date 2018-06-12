@@ -296,9 +296,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
     }
-    public void nacrtaj_voznje2(){
+    public void nacrtaj_driving_rute(){
         mMap.clear();
-        setTitle(getString(R.string.prihvati_voznju_label));
+        setTitle(getString(R.string.prihvati_label));
         Log.e(TAG, "velicina liste:" + messageList.size());
         for(int i=0; i<messageList.size();i++){
 
@@ -336,7 +336,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
     public void nacrtaj_voznje(){
         mMap.clear();
-        setTitle(getString(R.string.prihvati_voznju_label));
+        setTitle(getString(R.string.prihvati_label));
         Log.e(TAG, "velicina liste:" + messageList.size());
         for(int i=0; i<messageList.size();i++){
 
@@ -367,17 +367,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             mMarker.setSnippet("Vrijeme polaska: " + message.time + "\nZašto mene:" + message.razlog + "\nKontakt:" + message.kontakt + "\nStart:" + message.start + "\nEnd:" + message.end);
         }
-//            String url = getDirectionsUrl(sydney2, sydney3);
-//            DownloadTask downloadTask = new DownloadTask();
-//            downloadTask.execute(url);
-
     }
     public void preuzmi_i_crtaj_voznje(){
         mUserDatabase = FirebaseDatabase.getInstance().getReference().child("location");
         mUserDatabase2 = FirebaseDatabase.getInstance().getReference().child("drives");
         mMap.clear();
         messageList.clear();
-        setTitle(getString(R.string.prihvati_voznju_label));
+        setTitle(getString(R.string.prihvati_label));
         Log.e(TAG, "Preuzmi voznje");
         int iter=0;
             mUserDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -402,9 +398,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         spoji_linije(message.status,sydney3,sydney2);
                         mMarker.setSnippet("Vrijeme polaska: " + message.time + "\nZašto mene:" + message.razlog + "\nKontakt:" +
                                             message.kontakt + "\nStart:" + message.start + "\nEnd:" + message.end + "\nbrPutnika:" + message.br_putnika);
-                        //String url = getDirectionsUrl(sydney2, sydney3);
-                        //DownloadTask downloadTask = new DownloadTask();
-                        //downloadTask.execute(url);
                         Log.e(TAG, "velicina liste:" + messageList.size());
                     }
                 }
@@ -436,9 +429,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         spoji_linije(message.status,sydney3,sydney2);
                         mMarker.setSnippet("Vrijeme polaska: " + message.time + "\nZašto mene:" + message.razlog + "\nKontakt:"
                                 + message.kontakt + "\nStart:" + message.start + "\nEnd:" + message.end + "\nSlobodnih mjesta:" + message.br_putnika);
-                        //String url = getDirectionsUrl(sydney2, sydney3);
-                        //DownloadTask downloadTask = new DownloadTask();
-                        //downloadTask.execute(url);
                         Log.e(TAG, "velicina liste:" + messageList.size());
                     }
                 }
@@ -454,12 +444,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void spoji_linije(int status, LatLng start, LatLng end){
+        //zauzeto
         if(status==2 || status==4){
             Polyline line = mMap.addPolyline(new PolylineOptions()
                     .add(start,end)
                     .width(5)
                     .color(Color.RED));
         }else{
+        //slobodno
             Polyline line = mMap.addPolyline(new PolylineOptions()
                     .add(start,end)
                     .width(5)
@@ -546,6 +538,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
     //prihvaćavanje vožnje ili putnika
     public void nadi_chosen(){
+        //ako vozac prihvaća putnika
             myRef.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
@@ -570,14 +563,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                 Log.e(TAG, "Ovdje sam, status: " + message3.status);
                                 childUpdates.put(mUid, messageValues);
                                 myRef.updateChildren(childUpdates);
+
                                 sydney5 = new LatLng(message3.latitudeStart, message3.longitudeStart);
                                 sydney4 = new LatLng(message3.latitudeEnd, message3.longitudeEnd);
-
-                                // odabranu zacrveni
-                                Polyline line = mMap.addPolyline(new PolylineOptions()
-                                        .add(sydney4, sydney5)
-                                        .width(5)
-                                        .color(Color.RED));
+                                spoji_linije(2,sydney5,sydney4);
                                 Toast.makeText(MapsActivity.this, "Voznja prijavljena", Toast.LENGTH_SHORT).show();
                             }
                         }else{
@@ -590,6 +579,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     // Toast.makeText(this, "Voznja prijavljena", Toast.LENGTH_SHORT).show();
                 }
             });
+        //ako putnik prihvaća vozača
         myDrives.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
@@ -610,21 +600,20 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                             }else {
                                 int broj=0;
                                 broj=message2.br_putnika;
+                                broj=broj-1;
                                 Message message3 = new Message(message2.id, message2.longitudeStart, message2.latitudeStart,
                                         message2.longitudeEnd, message2.latitudeEnd, 3, username, message2.time,
-                                        message2.kontakt, message2.razlog,message2.start, message2.end, message2.br_putnika);
+                                        message2.kontakt, message2.razlog,message2.start, message2.end, broj);
                                 Map<String, Object> messageValues = message3.toMap();
                                 Map<String, Object> childUpdates = new HashMap<>();
                                 Log.e(TAG, "Ovdje sam, status: " + message3.status);
                                 childUpdates.put(mUid, messageValues);
                                 myDrives.updateChildren(childUpdates);
-                                sydney4 = new LatLng(message3.latitudeEnd, message3.longitudeEnd);
+
                                 sydney5 = new LatLng(message3.latitudeStart, message3.longitudeStart);
-                                // odabranu zacrveni
-                                Polyline line = mMap.addPolyline(new PolylineOptions()
-                                        .add(sydney4, sydney5)
-                                        .width(5)
-                                        .color(Color.RED));
+                                sydney4 = new LatLng(message3.latitudeEnd, message3.longitudeEnd);
+                                spoji_linije(4,sydney5,sydney4);
+
                                 Toast.makeText(MapsActivity.this, "Voznja prijavljena", Toast.LENGTH_SHORT).show();
                             }
                         }else{
@@ -681,7 +670,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         obrisi = findViewById(R.id.obrisi);
         refresh = findViewById(R.id.refresh);
         rute=findViewById(R.id.rute);
-
         mMap=googleMap;
         //button radi na pocetku
         prijavi.setEnabled(true);
@@ -690,11 +678,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         obrisi = findViewById(R.id.obrisi);
         refresh = findViewById(R.id.refresh);
 
+        //ako se brzo klikne izmedu vozaca i putnika, iscrtaju se rute putnika (sto ne zelimo)
+        moja_voznja(1);
         rute.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(stisnut){
-                    nacrtaj_voznje2();
+                    nacrtaj_driving_rute();
                 }else{
                     nacrtaj_voznje();
                 }
@@ -835,8 +825,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 return info;
             }
         });
-        //ako se brzo klikne izmedu vozaca i putnika, iscrtaju se rute putnika (sto ne zelimo)
-        moja_voznja(1);
+
     }
 
     private String getCompleteAddressString(double LATITUDE, double LONGITUDE) {

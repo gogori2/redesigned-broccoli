@@ -35,7 +35,7 @@
             android:id="@+id/time"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Vrijeme i datum polaska"
+            android:hint="Vrijeme polaska"
             android:inputType="time" />
     </android.support.design.widget.TextInputLayout>
 
