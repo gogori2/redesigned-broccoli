@@ -2,12 +2,13 @@
     <string name="app_name">PickApp</string>
     <string name="title_activity_maps">Map</string>
     <string name="zatrazi_voznju">Zatraži vožnju</string>
+    <string name="ponudi_voznju">Ponudi vožnju</string>
     <string name="obrisi_voznju">Otkaži vožnju</string>
     <string name="google_maps_key">AIzaSyBQIUqOHHvwkbomjSz0gi_um07AQDAQhjg</string>
     <string name="login_natpis">Prijava korisnika</string>
     <string name="login_button_natpis">Prijavi me</string>
     <string name="registracija_natpis">Registracija korisnika</string>
-    <string name="welcome_natpis">Dobrodosli, prijavite se za pocetak</string>
+    <string name="welcome_natpis">Dobrodošli, prijavite se za početak</string>
     <string name="welcome_button_registration">Registracija</string>
     <string name="welcom_button_sign_in">Prijavi se</string>
     <string name="moj_profil_natpis">Moj profil</string>

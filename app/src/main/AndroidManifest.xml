@@ -74,8 +74,8 @@
         <activity
             android:name=".HelpActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.SliderActivityTheme"></activity>
-
+            android:theme="@style/AppTheme.SliderActivityTheme" />
+        <activity android:name=".OtherProfileActivity"></activity>
     </application>
 
 </manifest>

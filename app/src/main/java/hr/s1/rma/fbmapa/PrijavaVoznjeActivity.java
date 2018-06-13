@@ -3,7 +3,6 @@ package hr.s1.rma.fbmapa;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AppCompatActivity;
@@ -22,14 +21,11 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-import hr.s1.rma.fbmapa.ExecutorValueEventListener;
 
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -41,6 +37,7 @@ public class PrijavaVoznjeActivity extends AppCompatActivity {
     private EditText mStart;
     private EditText mEnd;
     private EditText mBrPut;
+    private TextView putnikLabel;
     private Button mok_button,mcancel_button, mPlus, mMinus;
     private ProgressDialog prijavaProgress;
     private static final String TAG = "*";
@@ -66,6 +63,7 @@ public class PrijavaVoznjeActivity extends AppCompatActivity {
         mcancel_button = findViewById(R.id.Cancel_button);
         mPlus = findViewById(R.id.plus);
         mMinus = findViewById(R.id.minus);
+        putnikLabel = findViewById(R.id.textView7);
         prijavaProgress = new ProgressDialog(this);
 
         Intent intent = getIntent();
@@ -77,8 +75,10 @@ public class PrijavaVoznjeActivity extends AppCompatActivity {
         mEnd.setText(end);
         if(uloga==2) {
             mrazlog.setHint("Imam zelenu škodu, reg: RI-123-XY...");
+            putnikLabel.setText("Slobodnih mjesta");
         }else{
             mrazlog.setHint("Razlog");
+            putnikLabel.setText("Broj putnika");
         }
 
         mBrPut.setOnEditorActionListener(new TextInputEditText.OnEditorActionListener() {
@@ -94,7 +94,6 @@ public class PrijavaVoznjeActivity extends AppCompatActivity {
         mMinus.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 if(br_putnika>1) {
                     br_putnika = br_putnika - 1;
                     mBrPut.setText(br_putnika.toString());
@@ -104,8 +103,13 @@ public class PrijavaVoznjeActivity extends AppCompatActivity {
         mPlus.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(br_putnika<4){
                 br_putnika = br_putnika + 1;
                 mBrPut.setText(br_putnika.toString());
+                }else{
+                    mBrPut.setText("4");
+                    br_putnika=4;
+                }
             }
         });
         mok_button.setOnClickListener(new View.OnClickListener() {
@@ -126,8 +130,6 @@ public class PrijavaVoznjeActivity extends AppCompatActivity {
         mcancel_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//              Intent prijavaLink = new Intent(PrijavaVoznjeActivity.this, MapsActivity.class);
-//              startActivity(prijavaLink);
                 finish();
             }
         });
@@ -168,8 +170,16 @@ public class PrijavaVoznjeActivity extends AppCompatActivity {
         final String username = extras.getString("username");
         final String start = mStart.getText().toString();
         final String end = mEnd.getText().toString();
+
+        ArrayList<String> putnici = new ArrayList<String>();
+        putnici.add("Marko");
+        putnici.add("Ivano");
+        putnici.add("Javor");
+
         br_putnika = Integer.parseInt(mBrPut.getText().toString());
-        Log.d(TAG, "Value in Main is: " + username);
+        if(br_putnika>4){
+            br_putnika=4;
+        }
         if(username == null){
             Toast.makeText(this, "You are not signed in", Toast.LENGTH_SHORT).show();
         }else{
@@ -184,10 +194,8 @@ public class PrijavaVoznjeActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()) {
-//                        prijavaProgress.dismiss();
                             Toast.makeText(PrijavaVoznjeActivity.this, "Successfully added your route", Toast.LENGTH_SHORT).show();
                         }else{
-//                        prijavaProgress.hide();
                             Toast.makeText(PrijavaVoznjeActivity.this, "Something went wrong, try again", Toast.LENGTH_SHORT).show();
                         }
                     }
@@ -202,16 +210,13 @@ public class PrijavaVoznjeActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()) {
-//                        prijavaProgress.dismiss();
                             Toast.makeText(PrijavaVoznjeActivity.this, "Successfully added your route", Toast.LENGTH_SHORT).show();
                         }else{
-//                        prijavaProgress.hide();
                             Toast.makeText(PrijavaVoznjeActivity.this, "Something went wrong, try again", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
             }
         }
-//        mMap.clear();
     }
 }
